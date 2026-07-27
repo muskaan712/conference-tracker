@@ -1,35 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import Link from "next/link";
 import {
   registerWithEmail,
+  resendEmailVerification,
   sendPasswordReset,
   signInWithEmail,
   signInWithGoogle,
 } from "@/lib/firebase/auth-actions";
+import { describeAuthError, friendlyAuthError } from "@/lib/firebase/auth-errors";
+import { Dialog } from "@/components/dialog";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
-function friendlyAuthError(error: unknown): string {
-  const code = (error as { code?: string })?.code ?? "";
-  switch (code) {
-    case "auth/invalid-credential":
-    case "auth/wrong-password":
-    case "auth/user-not-found":
-      return "Incorrect email or password.";
-    case "auth/email-already-in-use":
-      return "An account already exists — try signing in instead.";
-    case "auth/weak-password":
-      return "Choose a password with at least 6 characters.";
-    case "auth/invalid-email":
-      return "Enter a valid email address.";
-    case "auth/too-many-requests":
-      return "Too many attempts — please wait a moment and try again.";
-    default:
-      return "Something went wrong. Please try again.";
-  }
-}
+const TITLES: Record<Mode, string> = {
+  "sign-in": "Sign in",
+  "sign-up": "Create account",
+  reset: "Reset password",
+};
 
 export function AuthModal({ onClose }: { onClose: () => void }) {
   const [mode, setMode] = useState<Mode>("sign-in");
@@ -38,6 +27,8 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,7 +40,9 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         onClose();
       } else if (mode === "sign-up") {
         await registerWithEmail(email, password);
-        onClose();
+        // Stay open — the user needs to know a verification email is on the
+        // way rather than the modal silently vanishing on them.
+        setSignedUpEmail(email);
       } else {
         await sendPasswordReset(email);
         setResetSent(true);
@@ -65,167 +58,191 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
     setError(null);
     setLoading(true);
     try {
-      await signInWithGoogle();
-      onClose();
-    } catch {
-      setError("Google sign-in failed. Please try again.");
+      const outcome = await signInWithGoogle();
+      if (outcome.status === "signed-in") onClose();
+      // "redirecting": the page is navigating away; nothing left to do here.
+    } catch (err) {
+      const info = describeAuthError(err);
+      setError(info.message);
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={
-          mode === "sign-in" ? "Sign in" : mode === "sign-up" ? "Create account" : "Reset password"
-        }
-        className="border-border bg-surface relative w-full max-w-sm rounded-xl border p-5 shadow-xl"
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-lg font-semibold">
-            {mode === "sign-in"
-              ? "Sign in"
-              : mode === "sign-up"
-                ? "Create account"
-                : "Reset password"}
-          </h2>
+  async function handleResendVerification() {
+    setResendStatus(null);
+    try {
+      await resendEmailVerification();
+      setResendStatus("Verification email sent again.");
+    } catch (err) {
+      setResendStatus(friendlyAuthError(err));
+    }
+  }
+
+  if (signedUpEmail) {
+    return (
+      <Dialog onClose={onClose} title="Check your email" className="max-w-sm">
+        <p className="text-sm">
+          Account created for <strong>{signedUpEmail}</strong>. We&apos;ve sent a verification link
+          — click it to confirm your email address.
+        </p>
+        <p className="text-muted-foreground mt-2 text-xs">
+          You&apos;re already signed in and can start using cross-device sync now; verification just
+          confirms this address is really yours.
+        </p>
+        {resendStatus && (
+          <p role="status" className="mt-2 text-xs">
+            {resendStatus}
+          </p>
+        )}
+        <div className="mt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            className="border-border-strong rounded-full border py-2 text-sm font-medium"
+          >
+            Resend verification email
+          </button>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
-            className="hover:bg-accent-soft rounded-full p-1.5"
+            className="bg-accent text-accent-foreground rounded-full py-2.5 text-sm font-semibold"
           >
-            <X aria-hidden className="h-5 w-5" />
+            Done
           </button>
         </div>
+      </Dialog>
+    );
+  }
 
-        <p className="text-muted-foreground mb-4 text-xs">
-          Optional — only needed for cross-device sync of My Papers and saved plans. Browsing and
-          guest My Papers work without an account.
+  return (
+    <Dialog onClose={onClose} title={TITLES[mode]} className="max-w-sm">
+      <p className="text-muted-foreground mb-4 text-xs">
+        Optional — only needed for cross-device sync of My Papers and saved plans. Browsing and
+        guest My Papers work without an account. See{" "}
+        <Link href="/privacy" className="text-accent underline">
+          what an account stores
+        </Link>
+        .
+      </p>
+
+      {resetSent ? (
+        <p role="status" className="text-sm">
+          If an account exists for that email, a password reset link has been sent.
         </p>
-
-        {resetSent ? (
-          <p role="status" className="text-sm">
-            If an account exists for that email, a password reset link has been sent.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label htmlFor="auth-email" className="mb-1 block text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="auth-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border-border-strong bg-surface w-full rounded-md border px-3 py-2 text-sm"
+            />
+          </div>
+          {mode !== "reset" && (
             <div>
-              <label htmlFor="auth-email" className="mb-1 block text-sm font-medium">
-                Email
+              <label htmlFor="auth-password" className="mb-1 block text-sm font-medium">
+                Password
               </label>
               <input
-                id="auth-email"
-                type="email"
+                id="auth-password"
+                type="password"
                 required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                minLength={6}
+                autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="border-border-strong bg-surface w-full rounded-md border px-3 py-2 text-sm"
               />
             </div>
-            {mode !== "reset" && (
-              <div>
-                <label htmlFor="auth-password" className="mb-1 block text-sm font-medium">
-                  Password
-                </label>
-                <input
-                  id="auth-password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-border-strong bg-surface w-full rounded-md border px-3 py-2 text-sm"
-                />
-              </div>
-            )}
-
-            {error && (
-              <p role="alert" className="text-xs text-red-700 dark:text-red-300">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-accent text-accent-foreground w-full rounded-full py-2.5 text-sm font-semibold disabled:opacity-60"
-            >
-              {loading
-                ? "Please wait…"
-                : mode === "sign-in"
-                  ? "Sign in"
-                  : mode === "sign-up"
-                    ? "Create account"
-                    : "Send reset link"}
-            </button>
-          </form>
-        )}
-
-        {mode !== "reset" && !resetSent && (
-          <>
-            <div className="my-4 flex items-center gap-2 text-xs">
-              <span className="bg-border h-px flex-1" />
-              or
-              <span className="bg-border h-px flex-1" />
-            </div>
-            <button
-              type="button"
-              onClick={handleGoogle}
-              disabled={loading}
-              className="border-border-strong bg-surface w-full rounded-full border py-2.5 text-sm font-medium disabled:opacity-60"
-            >
-              Continue with Google
-            </button>
-          </>
-        )}
-
-        <div className="mt-4 flex flex-col gap-1 text-center text-xs">
-          {mode === "sign-in" && (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("sign-up");
-                  setError(null);
-                }}
-                className="text-accent hover:underline"
-              >
-                Need an account? Create one
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("reset");
-                  setError(null);
-                }}
-                className="text-muted-foreground hover:underline"
-              >
-                Forgot password?
-              </button>
-            </>
           )}
-          {mode !== "sign-in" && (
+
+          {error && (
+            <p role="alert" className="text-xs text-red-700 dark:text-red-300">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-accent text-accent-foreground w-full rounded-full py-2.5 text-sm font-semibold disabled:opacity-60"
+          >
+            {loading
+              ? "Please wait…"
+              : mode === "sign-in"
+                ? "Sign in"
+                : mode === "sign-up"
+                  ? "Create account"
+                  : "Send reset link"}
+          </button>
+        </form>
+      )}
+
+      {mode !== "reset" && !resetSent && (
+        <>
+          <div className="my-4 flex items-center gap-2 text-xs">
+            <span className="bg-border h-px flex-1" />
+            or
+            <span className="bg-border h-px flex-1" />
+          </div>
+          <button
+            type="button"
+            onClick={handleGoogle}
+            disabled={loading}
+            className="border-border-strong bg-surface w-full rounded-full border py-2.5 text-sm font-medium disabled:opacity-60"
+          >
+            Continue with Google
+          </button>
+        </>
+      )}
+
+      <div className="mt-4 flex flex-col gap-1 text-center text-xs">
+        {mode === "sign-in" && (
+          <>
             <button
               type="button"
               onClick={() => {
-                setMode("sign-in");
+                setMode("sign-up");
                 setError(null);
-                setResetSent(false);
               }}
               className="text-accent hover:underline"
             >
-              Back to sign in
+              Need an account? Create one
             </button>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("reset");
+                setError(null);
+              }}
+              className="text-muted-foreground hover:underline"
+            >
+              Forgot password?
+            </button>
+          </>
+        )}
+        {mode !== "sign-in" && (
+          <button
+            type="button"
+            onClick={() => {
+              setMode("sign-in");
+              setError(null);
+              setResetSent(false);
+            }}
+            className="text-accent hover:underline"
+          >
+            Back to sign in
+          </button>
+        )}
       </div>
-    </div>
+    </Dialog>
   );
 }

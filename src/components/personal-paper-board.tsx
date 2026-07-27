@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, Plus, Trash2, Upload, CloudCheck } from "lucide-react";
+import { Download, Plus, Trash2, Upload, CloudCheck, CloudOff, RefreshCw } from "lucide-react";
 import {
   formatZodError,
   migratePersonalPaperRecord,
@@ -11,10 +11,18 @@ import {
   personalPaperSchema,
   type PersonalPaper,
 } from "@/lib/paper-schema";
-import { usePersonalPapersStore } from "@/lib/firebase/use-papers-store";
+import { usePersonalPapersStore, type SyncStatus } from "@/lib/firebase/use-papers-store";
 import { PaperEditor } from "./paper-editor";
 import { EmptyState } from "./misc";
+import { Dialog } from "./dialog";
 import { MigrationDialog } from "./auth/migration-dialog";
+
+const SYNC_STATUS_TEXT: Record<SyncStatus, string> = {
+  "saved-locally": "Guest records are stored only in this browser.",
+  syncing: "Syncing…",
+  synced: "Synced to your account — readable only by you, on any device you sign in on.",
+  error: "Sync failed — your latest change is safe locally but hasn't reached the cloud yet.",
+};
 
 const COLOR_CLASSES: Record<PersonalPaper["colorLabel"], string> = {
   slate: "border-l-stone-400",
@@ -30,6 +38,7 @@ export function PersonalPaperBoard() {
     papers,
     hydrated,
     mode,
+    syncStatus,
     savePaper: storeSavePaper,
     deletePaper: storeDeletePaper,
     replaceAll,
@@ -100,11 +109,19 @@ export function PersonalPaperBoard() {
       )}
       {mode === "cloud" ? (
         <p
-          role="note"
+          role="status"
           className="border-border-strong bg-surface text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs"
         >
-          <CloudCheck aria-hidden className="h-3.5 w-3.5 shrink-0" />
-          Synced to your account — readable only by you, on any device you sign in on.
+          {syncStatus === "syncing" && (
+            <RefreshCw aria-hidden className="h-3.5 w-3.5 shrink-0 animate-spin" />
+          )}
+          {syncStatus === "synced" && <CloudCheck aria-hidden className="h-3.5 w-3.5 shrink-0" />}
+          {syncStatus === "error" && (
+            <CloudOff aria-hidden className="h-3.5 w-3.5 shrink-0 text-red-700 dark:text-red-300" />
+          )}
+          <span className={syncStatus === "error" ? "text-red-700 dark:text-red-300" : undefined}>
+            {SYNC_STATUS_TEXT[syncStatus]}
+          </span>
         </p>
       ) : (
         <p
@@ -179,43 +196,36 @@ export function PersonalPaperBoard() {
       )}
 
       {confirmingClear && (
-        <div
+        <Dialog
+          onClose={() => setConfirmingClear(false)}
+          title="Clear all papers?"
           role="alertdialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="max-w-sm"
         >
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setConfirmingClear(false)}
-            aria-hidden
-          />
-          <div className="border-border bg-surface relative w-full max-w-sm rounded-xl border p-5 shadow-xl">
-            <p className="font-serif text-lg font-semibold">Clear all papers?</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              This deletes all {papers.length} paper{papers.length === 1 ? "" : "s"} stored in this
-              browser. Export a backup first if you want to keep them.
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setConfirmingClear(false)}
-                className="border-border-strong rounded-full border px-4 py-2 text-sm font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  replaceAll([]);
-                  setConfirmingClear(false);
-                }}
-                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-              >
-                Delete everything
-              </button>
-            </div>
+          <p className="text-muted-foreground text-sm">
+            This deletes all {papers.length} paper{papers.length === 1 ? "" : "s"} stored in this
+            browser. Export a backup first if you want to keep them.
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmingClear(false)}
+              className="border-border-strong rounded-full border px-4 py-2 text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                replaceAll([]);
+                setConfirmingClear(false);
+              }}
+              className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Delete everything
+            </button>
           </div>
-        </div>
+        </Dialog>
       )}
 
       {editing !== undefined && (
