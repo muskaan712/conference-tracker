@@ -2,8 +2,15 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { getTrackerStats, getUpcomingDeadlines } from "@/lib/conferences";
+import { getAllEvents } from "@/lib/events";
+import { getEditionBySlug } from "@/lib/conferences";
+import { resolveDateInstant } from "@/lib/datetime";
 import { TrackerStatistics } from "@/components/tracker-statistics";
-import { DeadlineTimeline } from "@/components/deadline-timeline";
+import {
+  DeadlineTimeline,
+  conferenceTimelineEntry,
+  eventTimelineEntry,
+} from "@/components/deadline-timeline";
 import { EmptyState } from "@/components/misc";
 import { siteConfig } from "@/lib/site-config";
 
@@ -26,7 +33,21 @@ const QUICK_LINKS = [
 export default function HomePage() {
   const now = new Date();
   const stats = getTrackerStats(now);
-  const upcoming = getUpcomingDeadlines(now, 10);
+  const upcoming = getUpcomingDeadlines(now, 10).map((u) =>
+    conferenceTimelineEntry(u.edition, u.date),
+  );
+
+  const upcomingEventDeadlines = getAllEvents()
+    .flatMap((event) =>
+      event.dates
+        .filter((d) => d.verificationStatus !== "previous-cycle")
+        .filter((d) => resolveDateInstant(d).getTime() >= now.getTime())
+        .map((date) =>
+          eventTimelineEntry(event, date, getEditionBySlug(event.parentConferenceEditionSlug)),
+        ),
+    )
+    .sort((a, b) => resolveDateInstant(a.date).getTime() - resolveDateInstant(b.date).getTime())
+    .slice(0, 5);
 
   return (
     <div className="space-y-12">
@@ -68,6 +89,39 @@ export default function HomePage() {
           <DeadlineTimeline entries={upcoming} now={now} />
         )}
       </section>
+
+      {upcomingEventDeadlines.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-serif text-2xl font-semibold">Upcoming workshops &amp; events</h2>
+            <Link href="/events" className="text-secondary text-sm font-medium hover:underline">
+              Browse all events →
+            </Link>
+          </div>
+          <ul className="divide-border bg-surface border-border divide-y rounded-xl border">
+            {upcomingEventDeadlines.map((entry) => {
+              if (entry.kind !== "event") return null;
+              return (
+                <li key={`${entry.event.slug}-${entry.date.id}`} className="p-3">
+                  <Link
+                    href={`/events/${entry.event.slug}`}
+                    className="hover:text-secondary font-medium"
+                  >
+                    {entry.event.acronym ?? entry.event.name}
+                  </Link>
+                  <span className="text-muted-foreground text-sm"> — {entry.date.label}</span>
+                  {entry.parentEdition ? (
+                    <span className="text-muted-foreground text-xs">
+                      {" "}
+                      (at {entry.parentEdition.acronym} {entry.parentEdition.editionYear})
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

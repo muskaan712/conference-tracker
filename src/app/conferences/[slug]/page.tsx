@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllEditions, getEditionBySlug } from "@/lib/conferences";
+import { getEventsForEdition } from "@/lib/events";
 import { ConferenceDetail } from "@/components/conference-detail";
 
 export const revalidate = 21600;
@@ -37,6 +38,8 @@ export default async function ConferenceDetailPage({
   const edition = getEditionBySlug(slug);
   if (!edition) notFound();
 
+  const associatedEvents = getEventsForEdition(slug);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -69,7 +72,7 @@ export default async function ConferenceDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ConferenceDetail edition={edition} />
+      <ConferenceDetail edition={edition} associatedEvents={associatedEvents} />
     </>
   );
 }

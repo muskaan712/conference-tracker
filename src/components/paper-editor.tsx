@@ -5,7 +5,10 @@ import { X } from "lucide-react";
 import {
   PAPER_COLOR_LABELS,
   PAPER_STAGES,
+  PAPER_TARGET_TYPES,
+  PAPER_TARGET_TYPE_LABELS,
   type PaperStage,
+  type PaperTargetType,
   type PersonalPaper,
 } from "@/lib/paper-schema";
 import {
@@ -29,7 +32,7 @@ function emptyPaper(): PersonalPaper {
     codeName: "",
     authors: [],
     researchAreas: [],
-    currentTarget: "",
+    currentTarget: undefined,
     fallbackConferences: [],
     minAcceptableTier: "Unclassified",
     europePreference: "none",
@@ -207,17 +210,56 @@ export function PaperEditor({
             </div>
           </div>
 
-          <div>
-            <label htmlFor="paper-target" className="mb-1 block text-sm font-medium">
-              Current target conference
-            </label>
-            <input
-              id="paper-target"
-              value={paper.currentTarget ?? ""}
-              onChange={(e) => setPaper((p) => ({ ...p, currentTarget: e.target.value }))}
-              placeholder="e.g. neurips-2026"
-              className="border-border-strong bg-surface w-full rounded-md border px-3 py-2 text-sm"
-            />
+          <div className="grid grid-cols-[140px_1fr] gap-2">
+            <div>
+              <label htmlFor="paper-target-type" className="mb-1 block text-sm font-medium">
+                Target type
+              </label>
+              <select
+                id="paper-target-type"
+                value={paper.currentTarget?.type ?? "main-conference"}
+                onChange={(e) =>
+                  setPaper((p) => ({
+                    ...p,
+                    currentTarget: {
+                      type: e.target.value as PaperTargetType,
+                      label: p.currentTarget?.label ?? "",
+                      slug: p.currentTarget?.slug,
+                    },
+                  }))
+                }
+                className="border-border-strong bg-surface w-full rounded-md border px-2 py-2 text-sm"
+              >
+                {PAPER_TARGET_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {PAPER_TARGET_TYPE_LABELS[t]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="paper-target" className="mb-1 block text-sm font-medium">
+                Current target
+              </label>
+              <input
+                id="paper-target"
+                value={paper.currentTarget?.label ?? ""}
+                onChange={(e) =>
+                  setPaper((p) => ({
+                    ...p,
+                    currentTarget: e.target.value
+                      ? {
+                          type: p.currentTarget?.type ?? "main-conference",
+                          label: e.target.value,
+                          slug: p.currentTarget?.slug,
+                        }
+                      : undefined,
+                  }))
+                }
+                placeholder="e.g. NeurIPS 2026, or a workshop name"
+                className="border-border-strong bg-surface w-full rounded-md border px-3 py-2 text-sm"
+              />
+            </div>
           </div>
 
           <div>

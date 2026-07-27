@@ -9,6 +9,18 @@ export interface ReportSummary {
   verificationWarnings: AuditEntry[];
   parsingFailures: string[];
   needsManualReview: AuditEntry[];
+  /** Populated by update-conferences.ts: candidates matchEditionForCandidate flagged as a likely new edition. */
+  possibleNewEditions?: string[];
+  /** Populated by update-conferences.ts: candidates evaluateFieldCandidate downgraded to reject/report-only. */
+  reportOnlyNotes?: string[];
+  newWorkshops?: string[];
+  newTutorials?: string[];
+  newSharedTasks?: string[];
+  newCompetitions?: string[];
+  eventDeadlineChanges?: string[];
+  eventCancellations?: string[];
+  proceedingsChanges?: string[];
+  missingAdapters?: string[];
 }
 
 export function summarizeAuditEntries(
@@ -55,8 +67,48 @@ export function renderMarkdownReport(summary: ReportSummary, generatedAt: string
   );
   section(
     lines,
+    "Possible new editions (needs a human to add the edition file)",
+    (summary.possibleNewEditions ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
     "Changed deadlines",
     summary.changedDeadlines.map((e) => auditLine(e)),
+  );
+  section(
+    lines,
+    "New workshops",
+    (summary.newWorkshops ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "New tutorials",
+    (summary.newTutorials ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "New shared tasks",
+    (summary.newSharedTasks ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "New competitions",
+    (summary.newCompetitions ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "Associated-event deadline changes",
+    (summary.eventDeadlineChanges ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "Associated-event cancellations",
+    (summary.eventCancellations ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "Proceedings changes",
+    (summary.proceedingsChanges ?? []).map((s) => `- ${s}`),
   );
   section(
     lines,
@@ -75,8 +127,18 @@ export function renderMarkdownReport(summary: ReportSummary, generatedAt: string
   );
   section(
     lines,
-    "Parsing failures",
+    "Parsing / source failures",
     summary.parsingFailures.map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "Missing adapters (source configured but no parser implemented)",
+    (summary.missingAdapters ?? []).map((s) => `- ${s}`),
+  );
+  section(
+    lines,
+    "Report-only candidates (rejected or held back by merge safeguards)",
+    (summary.reportOnlyNotes ?? []).map((s) => `- ${s}`),
   );
   section(
     lines,
@@ -84,13 +146,22 @@ export function renderMarkdownReport(summary: ReportSummary, generatedAt: string
     summary.needsManualReview.map((e) => auditLine(e)),
   );
 
-  if (
-    summary.newConferences.length === 0 &&
-    summary.newEditions.length === 0 &&
-    summary.changedDeadlines.length === 0 &&
-    summary.locationChanges.length === 0 &&
-    summary.rankingChanges.length === 0
-  ) {
+  const hasAnyChanges =
+    summary.newConferences.length > 0 ||
+    summary.newEditions.length > 0 ||
+    summary.changedDeadlines.length > 0 ||
+    summary.locationChanges.length > 0 ||
+    summary.rankingChanges.length > 0 ||
+    (summary.newWorkshops?.length ?? 0) > 0 ||
+    (summary.newTutorials?.length ?? 0) > 0 ||
+    (summary.newSharedTasks?.length ?? 0) > 0 ||
+    (summary.newCompetitions?.length ?? 0) > 0 ||
+    (summary.eventDeadlineChanges?.length ?? 0) > 0 ||
+    (summary.eventCancellations?.length ?? 0) > 0 ||
+    (summary.proceedingsChanges?.length ?? 0) > 0 ||
+    (summary.possibleNewEditions?.length ?? 0) > 0;
+
+  if (!hasAnyChanges) {
     lines.push("_No changes were discovered this run._");
   }
 

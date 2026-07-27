@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getAllEditions } from "@/lib/conferences";
+import { getAllEvents } from "@/lib/events";
 import { ResubmissionPlanner } from "@/components/resubmission-planner";
 
 export const revalidate = 21600;
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 
 export default function PlannerPage() {
   const editions = getAllEditions();
+  const events = getAllEvents();
   return (
     <div className="space-y-6">
       <div>
@@ -22,7 +24,7 @@ export default function PlannerPage() {
           venues whose next deadline gives you enough runway.
         </p>
       </div>
-      <ResubmissionPlanner editions={editions} />
+      <ResubmissionPlanner editions={editions} events={events} />
     </div>
   );
 }

@@ -1,5 +1,13 @@
 import type { DeadlineType, DiscoverySource } from "../../src/lib/schema";
 import type { FetchClient } from "./fetch-client";
+import {
+  detectAoE,
+  extractYearFromText,
+  parseDateText,
+  parseDefinitionLists,
+  parseFirstTable,
+  parseTimezoneMention,
+} from "./parse-helpers";
 
 export interface DiscoveredDateCandidate {
   type: DeadlineType;
@@ -13,6 +21,13 @@ export interface DiscoveredDateCandidate {
 
 export interface DiscoveredEditionCandidate {
   seriesId: string;
+  /**
+   * Resolved per Part 3 "Edition matching": prefer a year explicit in the
+   * source itself, then the discovery-sources.json registry's configured
+   * `editionYear` for that source, then a year parsed out of the page's own
+   * dates. Adapters must populate this whenever possible — update-
+   * conferences.ts never falls back to "the newest on-disk edition".
+   */
   editionYear?: number;
   city?: string;
   country?: string;
@@ -87,8 +102,12 @@ export const jsonLdEventAdapter: SourceAdapter = {
             });
           }
           if (dates.length === 0) continue;
+          const dateYear = event.startDate ? new Date(event.startDate).getUTCFullYear() : undefined;
           candidates.push({
             seriesId: source.conferenceSeries ?? "unknown",
+            // Priority: registry-configured editionYear, then a year parsed
+            // from the page's own conference date — never "newest on disk".
+            editionYear: source.editionYear ?? (Number.isFinite(dateYear) ? dateYear : undefined),
             city: event.location?.address?.addressLocality,
             country: event.location?.address?.addressCountry,
             venueName: event.location?.name,
@@ -127,7 +146,90 @@ export const manualReviewFallbackAdapter: SourceAdapter = {
   },
 };
 
-export const ADAPTERS: SourceAdapter[] = [jsonLdEventAdapter];
+const DEADLINE_LABEL_KEYWORDS: Array<[DeadlineType, RegExp]> = [
+  ["abstract", /abstract/i],
+  ["arr-commitment", /arr\s*commitment|commitment\s*deadline/i],
+  ["arr-submission", /arr\s*submission/i],
+  ["workshop-proposal", /workshop\s*proposal/i],
+  ["workshop-paper", /workshop\s*(paper|submission)/i],
+  ["camera-ready", /camera[\s-]?ready/i],
+  ["early-registration", /early\s*(bird\s*)?registration/i],
+  ["author-response", /author\s*response/i],
+  ["rebuttal", /rebuttal/i],
+  ["notification", /notification|decision/i],
+  ["conference-start", /conference\s*(begins|starts)|start\s*date/i],
+  ["conference-end", /conference\s*ends|end\s*date/i],
+  ["full-paper", /(full\s*)?paper\s*(submission\s*)?deadline|submission\s*deadline/i],
+];
+
+/** Best-effort classification of a table/definition-list row label into a known DeadlineType. Never guesses beyond keyword matches. */
+export function classifyDeadlineLabel(label: string): DeadlineType | undefined {
+  for (const [type, pattern] of DEADLINE_LABEL_KEYWORDS) {
+    if (pattern.test(label)) return type;
+  }
+  return undefined;
+}
+
+/**
+ * Generic "important dates" page adapter: works on any page exposing an
+ * HTML `<table>` or `<dl>` of label/date pairs (a very common layout for
+ * academic CFP pages), without hardcoding one specific conference's markup.
+ * Tested against synthetic fixtures modelled on that common layout — NOT
+ * verified against any specific live conference site in this codebase.
+ * Family-specific adapters (parsing a particular site's exact structure)
+ * can be added alongside this one; none are claimed beyond what's here.
+ */
+export const importantDatesTableAdapter: SourceAdapter = {
+  id: "important-dates-table",
+  description:
+    "Parses a generic HTML table or definition list of label/date pairs on an important-dates page.",
+  supports(source) {
+    return source.parser === "important-dates-table";
+  },
+  async run(source, client) {
+    const page = await client.fetchText(source.url);
+    if (!page || page.status !== 200) return [];
+
+    const fallbackYear = source.editionYear ?? extractYearFromText(page.body);
+    const rows = parseFirstTable(page.body);
+    const pairs: Array<[string, string]> =
+      rows.length > 0
+        ? rows.filter((r) => r.length >= 2).map((r) => [r[0], r[1]])
+        : parseDefinitionLists(page.body).map((e) => [e.term, e.definition]);
+
+    const dates: DiscoveredDateCandidate[] = [];
+    for (const [label, dateText] of pairs) {
+      const type = classifyDeadlineLabel(label);
+      if (!type) continue;
+      const isAoE = detectAoE(dateText);
+      const startsAt = parseDateText(dateText, fallbackYear);
+      if (!startsAt) continue;
+      dates.push({
+        type,
+        label: label.trim(),
+        startsAt,
+        timezone: parseTimezoneMention(dateText) ?? "UTC",
+        isAoE,
+        sourceUrl: source.url,
+      });
+    }
+
+    if (dates.length === 0) return [];
+
+    return [
+      {
+        seriesId: source.conferenceSeries ?? "unknown",
+        editionYear: fallbackYear,
+        officialWebsiteUrl: source.url,
+        dates,
+        sourceId: source.id,
+        confidence: confidenceForSource(source),
+      },
+    ];
+  },
+};
+
+export const ADAPTERS: SourceAdapter[] = [jsonLdEventAdapter, importantDatesTableAdapter];
 
 export function adapterFor(source: DiscoverySource): SourceAdapter {
   return ADAPTERS.find((adapter) => adapter.supports(source)) ?? manualReviewFallbackAdapter;

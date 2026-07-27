@@ -13,36 +13,42 @@ export function sortByTier<T>(items: T[], getTier: (item: T) => Tier): T[] {
   return [...items].sort((a, b) => compareTiers(getTier(a), getTier(b)));
 }
 
+/**
+ * Coordinated blue / pink / yellow tier treatment (A* strongest blue, A medium
+ * blue, B pink, C yellow, Unclassified cool grey) — see the visual-refresh
+ * "Tier colours" spec. The tier letter itself is always retained; colour is
+ * never the only signal.
+ */
 export const TIER_COLORS: Record<Tier, { bg: string; text: string; border: string; dot: string }> =
   {
     "A*": {
-      bg: "bg-amber-50 dark:bg-amber-950/40",
-      text: "text-amber-900 dark:text-amber-200",
-      border: "border-amber-300 dark:border-amber-800",
-      dot: "bg-amber-500",
+      bg: "bg-blue-100 dark:bg-blue-950/60",
+      text: "text-blue-950 dark:text-blue-100",
+      border: "border-blue-400 dark:border-blue-700",
+      dot: "bg-blue-700 dark:bg-blue-400",
     },
     A: {
-      bg: "bg-emerald-50 dark:bg-emerald-950/40",
-      text: "text-emerald-900 dark:text-emerald-200",
-      border: "border-emerald-300 dark:border-emerald-800",
-      dot: "bg-emerald-500",
+      bg: "bg-blue-50 dark:bg-blue-950/40",
+      text: "text-blue-900 dark:text-blue-200",
+      border: "border-blue-300 dark:border-blue-800",
+      dot: "bg-blue-500",
     },
     B: {
-      bg: "bg-sky-50 dark:bg-sky-950/40",
-      text: "text-sky-900 dark:text-sky-200",
-      border: "border-sky-300 dark:border-sky-800",
-      dot: "bg-sky-500",
+      bg: "bg-pink-50 dark:bg-pink-950/40",
+      text: "text-pink-900 dark:text-pink-200",
+      border: "border-pink-300 dark:border-pink-800",
+      dot: "bg-pink-500",
     },
     C: {
-      bg: "bg-violet-50 dark:bg-violet-950/40",
-      text: "text-violet-900 dark:text-violet-200",
-      border: "border-violet-300 dark:border-violet-800",
-      dot: "bg-violet-500",
+      bg: "bg-yellow-50 dark:bg-yellow-950/40",
+      text: "text-yellow-900 dark:text-yellow-200",
+      border: "border-yellow-300 dark:border-yellow-800",
+      dot: "bg-yellow-500",
     },
     Unclassified: {
-      bg: "bg-stone-100 dark:bg-stone-900",
-      text: "text-stone-700 dark:text-stone-300",
-      border: "border-stone-300 dark:border-stone-700",
-      dot: "bg-stone-400",
+      bg: "bg-slate-100 dark:bg-slate-800/60",
+      text: "text-slate-700 dark:text-slate-300",
+      border: "border-slate-300 dark:border-slate-700",
+      dot: "bg-slate-400",
     },
   };

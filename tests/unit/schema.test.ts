@@ -4,8 +4,9 @@ import {
   conferenceDateSchema,
   rankingSchema,
   discoverySourceSchema,
+  coLocatedEventSchema,
 } from "@/lib/schema";
-import { makeDate, makeEdition } from "./fixtures";
+import { makeDate, makeEdition, makeEvent } from "./fixtures";
 
 describe("conferenceEditionSchema", () => {
   it("accepts a well-formed edition", () => {
@@ -106,5 +107,51 @@ describe("discoverySourceSchema", () => {
       scanFrequency: "weekly",
     };
     expect(discoverySourceSchema.safeParse(source).success).toBe(false);
+  });
+});
+
+describe("coLocatedEventSchema", () => {
+  it("accepts a well-formed event", () => {
+    expect(coLocatedEventSchema.safeParse(makeEvent()).success).toBe(true);
+  });
+
+  it("rejects an invalid event type", () => {
+    const bad = { ...makeEvent(), type: "keynote-panel" };
+    expect(coLocatedEventSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("rejects an invalid lifecycle status", () => {
+    const bad = { ...makeEvent(), lifecycleStatus: "definitely-happening" };
+    expect(coLocatedEventSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("requires parentConferenceSeriesId and parentConferenceEditionSlug", () => {
+    const full = makeEvent() as Partial<ReturnType<typeof makeEvent>>;
+    delete full.parentConferenceEditionSlug;
+    expect(coLocatedEventSchema.safeParse(full).success).toBe(false);
+  });
+
+  it("defaults ranking to Unclassified-shaped input without requiring a source", () => {
+    const result = coLocatedEventSchema.safeParse(makeEvent({ ranking: { tier: "Unclassified" } }));
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts an event with a location override distinct from the parent", () => {
+    const result = coLocatedEventSchema.safeParse(
+      makeEvent({ locationOverride: { mode: "online" } }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a proceedings block with a valid status", () => {
+    const result = coLocatedEventSchema.safeParse(
+      makeEvent({ proceedings: { status: "archival", indexing: ["DBLP"] } }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid proceedings status", () => {
+    const bad = makeEvent({ proceedings: { status: "very-official", indexing: [] } as never });
+    expect(coLocatedEventSchema.safeParse(bad).success).toBe(false);
   });
 });
