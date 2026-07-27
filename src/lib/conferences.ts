@@ -94,8 +94,8 @@ export function getTrackerStats(now: Date = new Date()): TrackerStats {
   for (const edition of editions) {
     for (const date of edition.dates) {
       if (date.verificationStatus === "previous-cycle") continue;
-      const { daysRemaining } = relativeTimeTo(resolveDateInstant(date), now);
-      if (daysRemaining >= 0) upcomingDeadlineCount += 1;
+      const { isPassed } = relativeTimeTo(resolveDateInstant(date), now);
+      if (!isPassed) upcomingDeadlineCount += 1;
       if (date.verifiedAt && (!lastTrackerUpdate || date.verifiedAt > lastTrackerUpdate)) {
         lastTrackerUpdate = date.verifiedAt;
       }
@@ -138,11 +138,14 @@ export function getUpcomingDeadlines(
   for (const edition of editions) {
     for (const date of edition.dates) {
       if (date.verificationStatus === "previous-cycle") continue;
-      const { daysRemaining } = relativeTimeTo(resolveDateInstant(date), now);
-      if (daysRemaining >= 0) entries.push({ edition, date, daysRemaining });
+      const { isPassed, daysRemaining } = relativeTimeTo(resolveDateInstant(date), now);
+      if (!isPassed) entries.push({ edition, date, daysRemaining });
     }
   }
-  entries.sort((a, b) => a.daysRemaining - b.daysRemaining);
+  entries.sort(
+    (a, b) =>
+      resolveDateInstant(a.date).getTime() - resolveDateInstant(b.date).getTime(),
+  );
   return limit ? entries.slice(0, limit) : entries;
 }
 

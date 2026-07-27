@@ -124,6 +124,57 @@ intended way to populate this directory once at least one
 `workshop-programme`-type source is configured and enabled — none is
 configured in the registry yet either, for the same reason.
 
+## AoE deadline time-of-day audit (2026-07-28)
+
+Every `isAoE: true` date in `src/data/conferences/*.json` was scanned for the
+"midnight instead of 23:59" bug — AoE deadlines are, by academic convention,
+end-of-day (23:59 AoE), not start-of-day, and `T00:00:00` on an AoE-flagged
+submission deadline almost always means "written at the wrong time," not
+"genuinely due at midnight."
+
+**Fixed** (verified against the official CFP/programme page before changing;
+only the time-of-day changed, never the calendar date):
+
+- AAAI 2027 — abstract, full-paper, and supplementary/code deadlines
+  (`T00:00:00` → `T23:59:00`), confirmed against
+  `aaai.org/conference/aaai/aaai-27/main-technical-track-call/` ("11:59 PM
+  UTC-12").
+- NeurIPS 2026 — abstract and full-paper deadlines, confirmed against
+  `neurips.cc/Conferences/2026/CallForPapers` ("AOE").
+- EMNLP 2026 — ARR submission deadline and Industry Track deadline, confirmed
+  against `2026.emnlp.org` and `2026.emnlp.org/calls/industry_track/`
+  ("11:59 PM UTC-12:00, AoE").
+- EACL 2027 — ARR submission deadline (same convention as the other
+  ACL Rolling Review-linked deadlines above; the general ARR dates page
+  itself does not state a time, so this follows the family-wide AoE
+  convention already recorded on the record, not an independently
+  re-verified EACL-specific source).
+
+**Deliberately left unchanged** (do not blindly "fix" these — see below):
+
+- `emnlp-2026-author-response-start` — this is the *start* of a window
+  (`endsAt` already correctly reads `23:59:00`); a window opening at
+  midnight AoE is correct, not a bug.
+- `emnlp-2026-notification`, `emnlp-2026-camera-ready`,
+  `neurips-2026-notification` — these are announcement/due dates, not
+  submission deadlines, and it's genuinely ambiguous whether the official
+  page's "AoE" framing applies to them the same way. **Flagged for human
+  re-verification**, not changed.
+- While checking EMNLP 2026, one fetch of `2026.emnlp.org` returned
+  "Camera-ready papers due: August 30, 2026" — different from the
+  `2026-09-20` currently on file. This is a single automated fetch/summary,
+  not a confirmed source discrepancy — **a human should check the live page
+  directly** before trusting either date.
+
+A display bug was also found and fixed while verifying this: `formatOriginal`
+and `accessibleDeadlinePhrase` in `src/lib/datetime.ts` used to reproject an
+AoE deadline's resolved UTC instant back into a calendar date, which silently
+shifted the *displayed* date forward by one day for any AoE time past 12:00
+(exactly the common 23:59 AoE case) — e.g. "28 July 2026, 23:59 AoE" was
+rendering as "29 July 2026." Fixed to read the authored wall-clock
+date/time directly instead. See `tests/unit/datetime.test.ts` for the
+regression tests.
+
 ## Other things a human should double-check
 
 - The `.github/workflows/weekly-conference-update.yml` workflow assumes the
