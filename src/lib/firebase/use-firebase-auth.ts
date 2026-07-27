@@ -1,9 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { getRedirectResult, onAuthStateChanged, type User } from "firebase/auth";
 import { getFirebaseServices } from "./client";
 import { isFirebaseEnabled } from "./config";
+import { describeAuthError, type AuthErrorInfo } from "./auth-errors";
 
 export interface FirebaseAuthState {
   user: User | null;
@@ -18,8 +19,21 @@ let state: FirebaseAuthState = INITIAL_STATE;
 const listeners = new Set<() => void>();
 let subscribedOnce = false;
 
+let redirectError: AuthErrorInfo | null = null;
+const redirectErrorListeners = new Set<() => void>();
+
 function notify() {
   for (const listener of listeners) listener();
+}
+
+function notifyRedirectError() {
+  for (const listener of redirectErrorListeners) listener();
+}
+
+/** Dismisses a surfaced Google-redirect sign-in error once the user has seen it. */
+export function clearGoogleRedirectError(): void {
+  redirectError = null;
+  notifyRedirectError();
 }
 
 /**
@@ -36,6 +50,14 @@ function ensureSubscribed() {
     state = DISABLED_STATE;
     return;
   }
+  // A successful redirect sign-in is already picked up by onAuthStateChanged
+  // below; this call exists to surface an *error* from a completed redirect
+  // (e.g. auth/account-exists-with-different-credential), which otherwise
+  // has nowhere to go since the page that started the redirect is gone.
+  getRedirectResult(services.auth).catch((error) => {
+    redirectError = describeAuthError(error);
+    notifyRedirectError();
+  });
   onAuthStateChanged(services.auth, (user) => {
     state = { user, initializing: false };
     notify();
@@ -67,5 +89,20 @@ export function useFirebaseEnabled(): boolean {
     () => () => {},
     () => isFirebaseEnabled(),
     () => false,
+  );
+}
+
+function subscribeRedirectError(callback: () => void): () => void {
+  ensureSubscribed();
+  redirectErrorListeners.add(callback);
+  return () => redirectErrorListeners.delete(callback);
+}
+
+/** Surfaces an error from a completed Google-redirect sign-in, if one occurred. */
+export function useGoogleRedirectError(): AuthErrorInfo | null {
+  return useSyncExternalStore(
+    subscribeRedirectError,
+    () => redirectError,
+    () => null,
   );
 }
