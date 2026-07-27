@@ -1,8 +1,28 @@
 import { cn } from "@/lib/cn";
 import { TIER_COLORS } from "@/lib/tiers";
 import { countryNameForCode, flagEmojiForCountryCode } from "@/lib/geo";
-import { DEADLINE_TYPE_META, VERIFICATION_META, CONFERENCE_STATUS_META } from "@/lib/badge-meta";
-import type { DeadlineType, GeographicCategory, Tier, VerificationStatus } from "@/lib/schema";
+import {
+  DEADLINE_TYPE_META,
+  VERIFICATION_META,
+  CONFERENCE_STATUS_META,
+  EVENT_TYPE_META,
+  EVENT_LIFECYCLE_META,
+  PROCEEDINGS_META,
+} from "@/lib/badge-meta";
+import {
+  CO_LOCATED_EVENT_TYPE_LABELS,
+  EVENT_LIFECYCLE_LABELS,
+  UNCONFIRMED_EVENT_LIFECYCLE_STATUSES,
+} from "@/lib/schema";
+import type {
+  CoLocatedEventType,
+  DeadlineType,
+  EventLifecycleStatus,
+  GeographicCategory,
+  ProceedingsStatus,
+  Tier,
+  VerificationStatus,
+} from "@/lib/schema";
 import type { ConferenceStatus } from "@/lib/status";
 import { Globe2, MapPinOff, MonitorSmartphone } from "lucide-react";
 
@@ -131,6 +151,79 @@ export function DeadlineTypeBadge({ type, className }: { type: DeadlineType; cla
     <span className={badgeBase(cn(meta.colorClasses, className))}>
       <Icon aria-hidden className="h-3.5 w-3.5" />
       {meta.label}
+    </span>
+  );
+}
+
+export function EventTypeBadge({
+  type,
+  className,
+}: {
+  type: CoLocatedEventType;
+  className?: string;
+}) {
+  const meta = EVENT_TYPE_META[type];
+  const Icon = meta.icon;
+  return (
+    <span className={badgeBase(cn(meta.colorClasses, className))}>
+      <Icon aria-hidden className="h-3.5 w-3.5" />
+      {CO_LOCATED_EVENT_TYPE_LABELS[type]}
+    </span>
+  );
+}
+
+export function EventLifecycleBadge({
+  status,
+  className,
+}: {
+  status: EventLifecycleStatus;
+  className?: string;
+}) {
+  const meta = EVENT_LIFECYCLE_META[status];
+  const Icon = meta.icon;
+  const unconfirmed = UNCONFIRMED_EVENT_LIFECYCLE_STATUSES.includes(status);
+  return (
+    <span
+      className={badgeBase(cn(meta.colorClasses, className))}
+      title={
+        unconfirmed
+          ? "Not yet a confirmed event — do not treat as a publication target."
+          : undefined
+      }
+    >
+      <Icon aria-hidden className="h-3.5 w-3.5" />
+      {EVENT_LIFECYCLE_LABELS[status]}
+    </span>
+  );
+}
+
+export function ProceedingsBadge({
+  status,
+  className,
+}: {
+  status: ProceedingsStatus;
+  className?: string;
+}) {
+  const meta = PROCEEDINGS_META[status];
+  const Icon = meta.icon;
+  return (
+    <span className={badgeBase(cn(meta.colorClasses, className))}>
+      <Icon aria-hidden className="h-3.5 w-3.5" />
+      {meta.label}
+    </span>
+  );
+}
+
+/** Distinguishes a parent conference's own tier from an event's independently-assessed tier. */
+export function ParentTierBadge({ tier, className }: { tier: Tier; className?: string }) {
+  const colors = TIER_COLORS[tier];
+  return (
+    <span
+      className={badgeBase(cn(colors.bg, colors.text, colors.border, className))}
+      title="Parent conference tier — never inherited by the associated event"
+    >
+      <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
+      Parent tier {tier}
     </span>
   );
 }

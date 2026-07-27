@@ -37,10 +37,13 @@ jobs:
         run: npm run check-sources
         continue-on-error: true
 
-      - name: Discover + merge candidate updates
+      - name: Discover + merge candidate conference updates
         run: npm run update-conferences
 
-      - name: Validate resulting conference data
+      - name: Discover + merge candidate associated-event updates
+        run: npm run update-events
+
+      - name: Validate resulting conference and event data
         run: npm run validate-data
 
       - name: Upload run reports
@@ -53,9 +56,11 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          # Only conference data changes warrant a PR; source-health bookkeeping
-          # (last-checked timestamps) alone is not worth a review cycle.
-          if git diff --quiet -- src/data/conferences; then
+          # Only conference/event data changes warrant a PR; source-health
+          # bookkeeping (last-checked timestamps) alone is not worth a review
+          # cycle. A single combined PR covers both, per Part 3's "one
+          # combined PR" requirement — never two competing workflows.
+          if git diff --quiet -- src/data/conferences src/data/events; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -84,13 +89,18 @@ jobs:
           set -euo pipefail
           DATE=$(date +%Y-%m-%d)
           BRANCH="automated/conference-update-${DATE}"
-          REPORT_FILE=$(ls reports/update-report-*.md | head -n 1)
+
+          # One combined PR body covering both conference and associated-event
+          # changes — never two separate PRs or a second workflow.
+          cat reports/update-report-*.md reports/event-update-report-*.md \
+            > /tmp/combined-pr-body.md 2>/dev/null || \
+            cat reports/update-report-*.md > /tmp/combined-pr-body.md
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git add src/data
-          git commit -m "Automated conference data update ${DATE}"
+          git commit -m "Automated conference and event data update ${DATE}"
           git push origin "$BRANCH"
 
           # Deliberately created WITHOUT --label here: if a label attach were
@@ -98,8 +108,8 @@ jobs:
           # would itself fail with "pull request already exists". Labels are
           # attached as a separate, safely-retriable best-effort step below.
           gh pr create \
-            --title "Automated conference data update ${DATE}" \
-            --body-file "$REPORT_FILE" \
+            --title "Automated conference and event data update ${DATE}" \
+            --body-file /tmp/combined-pr-body.md \
             --base main \
             --head "$BRANCH"
 

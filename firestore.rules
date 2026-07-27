@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Security rules for the optional Firebase account feature.
+//
+// Everything the public tracker needs (conference/event data, discovery
+// sources) is static, repository-committed JSON bundled into the Next.js
+// build — none of it lives in Firestore, and nothing here grants access to
+// it because there is nothing to grant access to.
+//
+// Every document a signed-in user can read or write lives under
+// /users/{userId}/... and must be owned by that exact authenticated UID.
+// Default-deny applies to every other path.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Reasonable upper bounds so a single malformed/huge write can't blow
+    // past Firestore's 1 MiB document limit or otherwise abuse the Spark
+    // (free) plan's quotas.
+    function isReasonableSize(str) {
+      return str is string && str.size() < 4000;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function ownsDocument(userId) {
+      return request.resource.data.ownerUid == userId;
+    }
+
+    function ownershipUnchanged() {
+      return request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    function hasValidSchemaVersion() {
+      return request.resource.data.schemaVersion is int
+        && request.resource.data.schemaVersion > 0
+        && request.resource.data.schemaVersion <= 100;
+    }
+
+    match /users/{userId} {
+
+      match /papers/{paperId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && ownsDocument(userId)
+          && hasValidSchemaVersion()
+          && isReasonableSize(request.resource.data.title);
+        allow update: if isOwner(userId)
+          && ownsDocument(userId)
+          && ownershipUnchanged()
+          && hasValidSchemaVersion();
+        allow delete: if isOwner(userId);
+      }
+
+      match /resubmissionPlans/{planId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && ownsDocument(userId)
+          && hasValidSchemaVersion()
+          && isReasonableSize(request.resource.data.name);
+        allow update: if isOwner(userId)
+          && ownsDocument(userId)
+          && ownershipUnchanged()
+          && hasValidSchemaVersion();
+        allow delete: if isOwner(userId);
+      }
+
+      match /favourites/{favouriteId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && ownsDocument(userId)
+          && hasValidSchemaVersion();
+        allow update: if isOwner(userId)
+          && ownsDocument(userId)
+          && ownershipUnchanged()
+          && hasValidSchemaVersion();
+        allow delete: if isOwner(userId);
+      }
+
+      match /preferences/{docId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && ownsDocument(userId)
+          && hasValidSchemaVersion();
+        allow update: if isOwner(userId)
+          && ownsDocument(userId)
+          && ownershipUnchanged()
+          && hasValidSchemaVersion();
+        allow delete: if isOwner(userId);
+      }
+
+      // Default-deny anything under a user's own document that isn't one of
+      // the explicit collections above.
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // Default-deny every other path in the database.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

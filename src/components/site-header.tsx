@@ -2,9 +2,11 @@ import Link from "next/link";
 import { CalendarClock } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { siteConfig } from "@/lib/site-config";
+import { AccountMenu } from "./auth/account-menu";
 
 const NAV_LINKS = [
   { href: "/conferences", label: "Conferences" },
+  { href: "/events", label: "Workshops & Events" },
   { href: "/timeline", label: "Timeline" },
   { href: "/tiers", label: "Tiers" },
   { href: "/regions", label: "Regions" },
@@ -40,7 +42,10 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <ThemeToggle />
+        <div className="flex shrink-0 items-center gap-2">
+          <AccountMenu />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

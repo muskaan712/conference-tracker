@@ -1,10 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getAllEditions } from "@/lib/conferences";
+import { getAllEvents } from "@/lib/events";
 import { getSiteUrl } from "@/lib/site-url";
 
 const STATIC_ROUTES = [
   "",
   "/conferences",
+  "/events",
   "/timeline",
   "/tiers",
   "/regions",
@@ -28,5 +30,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly",
     priority: 0.6,
   }));
-  return [...staticEntries, ...conferenceEntries];
+  const eventEntries: MetadataRoute.Sitemap = getAllEvents().map((event) => ({
+    url: `${base}/events/${event.slug}`,
+    lastModified: event.lastVerifiedAt,
+    changeFrequency: "weekly",
+    priority: 0.5,
+  }));
+  return [...staticEntries, ...conferenceEntries, ...eventEntries];
 }

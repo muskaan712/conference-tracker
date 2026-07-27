@@ -6,10 +6,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const TIERS: { label: string; bg: string; fg: string }[] = [
-  { label: "A*", bg: "#fde9d0", fg: "#7a4310" },
-  { label: "A", bg: "#d3f3e6", fg: "#0d5f42" },
-  { label: "B", bg: "#d9edfb", fg: "#0b4a72" },
-  { label: "C", bg: "#e9dff6", fg: "#4a2a72" },
+  { label: "A*", bg: "#dbe4ff", fg: "#17337a" },
+  { label: "A", bg: "#e7edff", fg: "#2540a8" },
+  { label: "B", bg: "#fce2ec", fg: "#9c1a52" },
+  { label: "C", bg: "#fff6cc", fg: "#7a5b06" },
 ];
 
 export default function OpengraphImage() {
@@ -21,9 +21,9 @@ export default function OpengraphImage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        background: "#faf7f1",
+        background: "#f7f9ff",
         padding: 72,
-        color: "#211c15",
+        color: "#17213c",
         fontFamily: "sans-serif",
       }}
     >
@@ -33,8 +33,8 @@ export default function OpengraphImage() {
             width: 64,
             height: 64,
             borderRadius: 16,
-            background: "#b5502d",
-            color: "#fff8f0",
+            background: "#3557d6",
+            color: "#ffffff",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -52,7 +52,7 @@ export default function OpengraphImage() {
           display: "flex",
           fontSize: 28,
           lineHeight: 1.45,
-          color: "#4b453b",
+          color: "#52618a",
           maxWidth: 980,
         }}
       >
@@ -84,8 +84,8 @@ export default function OpengraphImage() {
             alignItems: "center",
             padding: "10px 22px",
             borderRadius: 999,
-            background: "#e4ddcf",
-            color: "#4b453b",
+            background: "#eef2ff",
+            color: "#3557d6",
             fontSize: 22,
             fontWeight: 600,
           }}

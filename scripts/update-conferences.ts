@@ -19,10 +19,26 @@ import { diffEditionFields } from "../src/lib/diff";
 import { runDiscovery } from "./discover-conferences";
 import type { DiscoveredEditionCandidate } from "./shared/adapters";
 import { renderMarkdownReport, summarizeAuditEntries } from "./generate-update-report";
+import { evaluateFieldCandidate, type SourceTrustLevel } from "./shared/merge-safeguards";
+import { matchEditionForCandidate } from "./shared/edition-matching";
 
 const ROOT = path.join(__dirname, "..");
 const CONFERENCES_DIR = path.join(ROOT, "src/data/conferences");
 const REPORTS_DIR = path.join(ROOT, "reports");
+
+/** adapters.ts sets `confidence` directly from the source's configured trustLevel — see confidenceForSource(). */
+function trustLevelFromConfidence(confidence: "high" | "medium" | "low"): SourceTrustLevel {
+  if (confidence === "high") return "official";
+  if (confidence === "medium") return "secondary";
+  return "discovery-only";
+}
+
+function daysBetweenIso(a: string, b: string): number | undefined {
+  const aTime = Date.parse(a);
+  const bTime = Date.parse(b);
+  if (Number.isNaN(aTime) || Number.isNaN(bTime)) return undefined;
+  return Math.round((bTime - aTime) / 86_400_000);
+}
 
 function loadSeriesFile(
   seriesId: string,
@@ -37,17 +53,46 @@ function mergeCandidateIntoEdition(
   edition: ConferenceEdition,
   candidate: DiscoveredEditionCandidate,
   now: string,
-): { edition: ConferenceEdition; auditEntries: AuditEntry[] } {
+): { edition: ConferenceEdition; auditEntries: AuditEntry[]; reportOnlyNotes: string[] } {
   const before = structuredClone(edition);
   const next: ConferenceEdition = structuredClone(edition);
+  const reportOnlyNotes: string[] = [];
+  const sourceTrustLevel = trustLevelFromConfidence(candidate.confidence);
 
   for (const dateCandidate of candidate.dates) {
     const existingIndex = next.dates.findIndex((d) => d.type === dateCandidate.type);
+    const existing = existingIndex >= 0 ? next.dates[existingIndex] : undefined;
+
+    const decision = evaluateFieldCandidate({
+      fieldName: `dates.${dateCandidate.type}`,
+      existingValue: existing?.startsAt ?? null,
+      proposedValue: dateCandidate.startsAt,
+      sourceTrustLevel,
+      confidence: candidate.confidence,
+      existingVerificationStatus: existing?.verificationStatus,
+      proposedVerificationStatus: "discovered",
+      editionMatched: true,
+      sourceUrl: dateCandidate.sourceUrl,
+      dateShiftDays: existing
+        ? daysBetweenIso(existing.startsAt, dateCandidate.startsAt)
+        : undefined,
+    });
+
+    if (decision.action === "reject") {
+      reportOnlyNotes.push(
+        `${edition.slug} dates.${dateCandidate.type}: rejected — ${decision.reason}`,
+      );
+      continue;
+    }
+    if (decision.action === "report-only") {
+      reportOnlyNotes.push(
+        `${edition.slug} dates.${dateCandidate.type}: report-only — ${decision.reason}`,
+      );
+      continue;
+    }
+
     const discoveredDate = {
-      id:
-        existingIndex >= 0
-          ? next.dates[existingIndex].id
-          : `${edition.slug}-${dateCandidate.type}-discovered`,
+      id: existing ? existing.id : `${edition.slug}-${dateCandidate.type}-discovered`,
       type: dateCandidate.type,
       label: dateCandidate.label,
       startsAt: dateCandidate.startsAt,
@@ -57,10 +102,15 @@ function mergeCandidateIntoEdition(
       verificationStatus: "discovered" as const,
       sourceUrl: dateCandidate.sourceUrl,
       discoveredAt: now,
+      notes: decision.highlight
+        ? "Large date shift vs. the previous value — verify against the source before merging."
+        : decision.isExtension
+          ? "Later than the previous value — likely a deadline extension; verify before merging."
+          : existing?.notes,
     };
-    if (existingIndex >= 0) {
-      if (next.dates[existingIndex].startsAt !== discoveredDate.startsAt) {
-        next.dates[existingIndex] = { ...next.dates[existingIndex], ...discoveredDate };
+    if (existing && existingIndex >= 0) {
+      if (existing.startsAt !== discoveredDate.startsAt) {
+        next.dates[existingIndex] = { ...existing, ...discoveredDate };
       }
     } else {
       next.dates.push(discoveredDate);
@@ -90,12 +140,14 @@ function mergeCandidateIntoEdition(
 
   next.auditTrail = [...next.auditTrail, ...auditEntries];
 
-  return { edition: next, auditEntries };
+  return { edition: next, auditEntries, reportOnlyNotes };
 }
 
 async function main() {
   const { candidates, failedSources, generatedAt } = await runDiscovery();
   const allAuditEntries: AuditEntry[] = [];
+  const allReportOnlyNotes: string[] = [];
+  const possibleNewEditions: string[] = [];
   const touchedFiles = new Set<string>();
 
   const bySeriesId = new Map<string, DiscoveredEditionCandidate[]>();
@@ -115,17 +167,37 @@ async function main() {
     const { filePath, data } = loaded;
     let changed = false;
 
-    const latestEdition = [...data.editions].sort((a, b) => b.editionYear - a.editionYear)[0];
     for (const candidate of seriesCandidates) {
-      const { edition: mergedEdition, auditEntries } = mergeCandidateIntoEdition(
-        latestEdition,
-        candidate,
-        generatedAt,
-      );
+      // Never merge into "whichever edition is newest" — match on an explicit
+      // edition year (or fall back through datetime.ts-derived conference-date
+      // years the adapter already resolved), never a blind latest-wins guess.
+      const match = matchEditionForCandidate(data.editions, {
+        seriesId,
+        explicitEditionYear: candidate.editionYear,
+      });
+      if (!match.edition) {
+        if (match.isPossibleNewEdition) {
+          possibleNewEditions.push(
+            `${seriesId} ${candidate.editionYear} (from source "${candidate.sourceId}") — no matching on-disk edition; add a new edition file entry manually before this can be merged.`,
+          );
+        } else {
+          allReportOnlyNotes.push(
+            `${seriesId}: candidate from source "${candidate.sourceId}" has no resolvable edition year; skipped rather than guessed.`,
+          );
+        }
+        continue;
+      }
+
+      const {
+        edition: mergedEdition,
+        auditEntries,
+        reportOnlyNotes,
+      } = mergeCandidateIntoEdition(match.edition, candidate, generatedAt);
+      allReportOnlyNotes.push(...reportOnlyNotes);
       if (auditEntries.length === 0) continue;
       changed = true;
       allAuditEntries.push(...auditEntries);
-      const idx = data.editions.findIndex((e) => e.slug === latestEdition.slug);
+      const idx = data.editions.findIndex((e) => e.slug === match.edition!.slug);
       data.editions[idx] = mergedEdition;
     }
 
@@ -136,6 +208,8 @@ async function main() {
   }
 
   const summary = summarizeAuditEntries(allAuditEntries, failedSources);
+  summary.reportOnlyNotes = allReportOnlyNotes;
+  summary.possibleNewEditions = possibleNewEditions;
   const report = renderMarkdownReport(summary, generatedAt);
 
   fs.mkdirSync(REPORTS_DIR, { recursive: true });

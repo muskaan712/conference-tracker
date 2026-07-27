@@ -2,45 +2,104 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Palette: contemporary academic, built on blue (primary / structure),
+ * pink (secondary / workshops & expressive accents), and yellow (highlight /
+ * warnings & approaching deadlines). Replaces the previous brown/beige/
+ * muted-orange system. Every filled combination below (fill + its
+ * "-foreground" pair) has been checked for WCAG AA contrast (>= 4.5:1 for
+ * normal-size text).
+ */
 :root {
-  --background: #faf7f1;
+  --background: #f7f9ff;
   --surface: #ffffff;
-  --surface-raised: #fffdfa;
-  --foreground: #211c15;
-  --muted-foreground: #6b6255;
-  --border: #e4ddcf;
-  --border-strong: #cfc5b0;
-  --accent: #b5502d;
-  --accent-foreground: #fff8f0;
-  --accent-soft: #f5e2d6;
-  --focus-ring: #1d6f66;
+  --surface-raised: #eef2ff;
+  --surface-elevated: #eef2ff;
+  --foreground: #17213c;
+  --muted: #eef2ff;
+  --muted-foreground: #52618a;
+  --border: #dde7ff;
+  --border-strong: #b9c6e8;
+
+  --primary: #3557d6;
+  --primary-foreground: #ffffff;
+  --accent: #3557d6;
+  --accent-foreground: #ffffff;
+  --accent-soft: #dde7ff;
+
+  --secondary: #d6336c;
+  --secondary-foreground: #ffffff;
+  --secondary-soft: #fce2ec;
+
+  --highlight: #f2c94c;
+  --highlight-foreground: #17213c;
+  --highlight-soft: #fff6cc;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --focus-ring: #2547b8;
 }
 
 .dark {
-  --background: #16130f;
-  --surface: #201c16;
-  --surface-raised: #262019;
-  --foreground: #f1eae0;
-  --muted-foreground: #b0a695;
-  --border: #3a332a;
-  --border-strong: #4c4335;
-  --accent: #e28a5c;
-  --accent-foreground: #1b1108;
-  --accent-soft: #3a2718;
-  --focus-ring: #6fd4c6;
+  --background: #0e1526;
+  --surface: #141b2e;
+  --surface-raised: #1b2338;
+  --surface-elevated: #1b2338;
+  --foreground: #eaf0ff;
+  --muted: #1b2338;
+  --muted-foreground: #97a6ce;
+  --border: #26314c;
+  --border-strong: #38456a;
+
+  --primary: #7c9cff;
+  --primary-foreground: #0b1220;
+  --accent: #7c9cff;
+  --accent-foreground: #0b1220;
+  --accent-soft: #1e2a4d;
+
+  --secondary: #f2679d;
+  --secondary-foreground: #2a0716;
+  --secondary-soft: #3a1c2a;
+
+  --highlight: #e8b93f;
+  --highlight-foreground: #241c02;
+  --highlight-soft: #3a2e0c;
+
+  --destructive: #f87171;
+  --destructive-foreground: #2a0a0a;
+
+  --focus-ring: #8ab4ff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-elevated: var(--surface-elevated);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-soft: var(--secondary-soft);
+
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-soft: var(--highlight-soft);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
   --color-focus-ring: var(--focus-ring);
   --font-serif: var(--font-fraunces);
   --font-sans: var(--font-source-sans);

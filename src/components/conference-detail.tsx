@@ -1,21 +1,111 @@
 import Link from "next/link";
 import { ExternalLink, Globe, MapPin, ScrollText, Tags } from "lucide-react";
-import type { ConferenceEdition } from "@/lib/schema";
-import { RESEARCH_AREA_LABELS } from "@/lib/schema";
+import type { CoLocatedEvent, ConferenceEdition } from "@/lib/schema";
+import { RESEARCH_AREA_LABELS, CO_LOCATED_EVENT_TYPE_LABELS } from "@/lib/schema";
 import { deriveConferenceStatus } from "@/lib/status";
 import { icsForConference, icsForDeadline } from "@/lib/ics";
-import { TierBadge, RegionBadge, CountryFlag, StatusBadge, VerificationBadge } from "./badges";
+import {
+  TierBadge,
+  RegionBadge,
+  CountryFlag,
+  StatusBadge,
+  VerificationBadge,
+  EventTypeBadge,
+  ProceedingsBadge,
+} from "./badges";
 import { DeadlineTypeBadge } from "./badges";
 import { TimezoneDisplay } from "./timezone-display";
 import { Countdown } from "./countdown";
 import { CalendarExportButton } from "./calendar-export-button";
 import { SourceCitation } from "./misc";
+import { resolveDateInstant } from "@/lib/datetime";
+
+const OPEN_SUBMISSION_STATUSES = new Set([
+  "Open",
+  "Opening Soon",
+  "Abstract Deadline Approaching",
+  "Paper Deadline Approaching",
+]);
+
+function nextEventDate(event: CoLocatedEvent, now: Date) {
+  const upcoming = event.dates
+    .filter((d) => d.verificationStatus !== "previous-cycle")
+    .map((d) => ({ d, t: resolveDateInstant(d).getTime() }))
+    .filter(({ t }) => t >= now.getTime())
+    .sort((a, b) => a.t - b.t);
+  return upcoming[0]?.d;
+}
+
+function AssociatedEventsSection({ events, now }: { events: CoLocatedEvent[]; now: Date }) {
+  if (events.length === 0) return null;
+
+  const countsByType = new Map<string, number>();
+  for (const event of events) {
+    countsByType.set(event.type, (countsByType.get(event.type) ?? 0) + 1);
+  }
+  const openCount = events.filter((e) =>
+    OPEN_SUBMISSION_STATUSES.has(deriveConferenceStatus(e.dates, now)),
+  ).length;
+  const nearest = events
+    .map((e) => ({ e, d: nextEventDate(e, now) }))
+    .filter((x): x is { e: CoLocatedEvent; d: NonNullable<ReturnType<typeof nextEventDate>> } =>
+      Boolean(x.d),
+    )
+    .sort((a, b) => resolveDateInstant(a.d).getTime() - resolveDateInstant(b.d).getTime())[0];
+
+  return (
+    <section aria-labelledby="events-heading" className="space-y-4">
+      <h2 id="events-heading" className="font-serif text-xl font-semibold">
+        Workshops, tutorials and associated events
+      </h2>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        {[...countsByType.entries()].map(([type, count]) => (
+          <span key={type} className="border-border-strong rounded-full border px-2.5 py-1 text-xs">
+            {count}{" "}
+            {CO_LOCATED_EVENT_TYPE_LABELS[type as keyof typeof CO_LOCATED_EVENT_TYPE_LABELS]}
+            {count === 1 ? "" : "s"}
+          </span>
+        ))}
+        <span className="text-muted-foreground text-xs">
+          {openCount} with currently open submissions
+        </span>
+        {nearest && (
+          <span className="text-muted-foreground text-xs">
+            Nearest event deadline: {nearest.e.acronym ?? nearest.e.name} — {nearest.d.label}
+          </span>
+        )}
+      </div>
+      <ul className="divide-border bg-surface border-border divide-y rounded-xl border">
+        {events.map((event) => {
+          const next = nextEventDate(event, now);
+          return (
+            <li key={event.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
+              <div>
+                <Link href={`/events/${event.slug}`} className="hover:text-secondary font-medium">
+                  {event.acronym ?? event.name}
+                </Link>
+                <p className="text-muted-foreground text-xs">{event.name}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <EventTypeBadge type={event.type} />
+                {event.proceedings ? <ProceedingsBadge status={event.proceedings.status} /> : null}
+                {next ? <Countdown date={next} label={next.label} now={now} /> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
 
 export function ConferenceDetail({
   edition,
+  associatedEvents = [],
   now = new Date(),
 }: {
   edition: ConferenceEdition;
+  associatedEvents?: CoLocatedEvent[];
   now?: Date;
 }) {
   const status = deriveConferenceStatus(edition.dates, now);
@@ -126,6 +216,8 @@ export function ConferenceDetail({
           <p className="text-muted-foreground mt-2 text-sm">{edition.ranking.notes}</p>
         ) : null}
       </section>
+
+      <AssociatedEventsSection events={associatedEvents} now={now} />
 
       <section aria-labelledby="dates-heading">
         <h2 id="dates-heading" className="mb-4 font-serif text-xl font-semibold">

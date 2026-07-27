@@ -2,8 +2,14 @@
 
 A research-focused tracker for AI, machine learning, NLP, computer vision,
 information retrieval, medical AI, and trustworthy AI conferences, with
-verified deadlines, rankings, locations, resubmission planning, and weekly
-update checks. Built and maintained by Muskaan Chopra.
+verified deadlines, rankings, locations, workshops/tutorials/shared tasks
+and other associated events, resubmission planning, and weekly update
+checks. Built and maintained by Muskaan Chopra.
+
+Accounts are entirely optional (Firebase Authentication + Firestore) and
+only unlock cross-device sync for My Papers and saved resubmission plans —
+browsing, filtering, the planner, calendar export, and guest My Papers all
+work with zero account and zero Firebase configuration.
 
 **Conference dates and deadlines can change.** Always confirm critical
 information on the linked official conference website before submitting a
@@ -22,6 +28,9 @@ and hasn't been verified in the current seed dataset, and
 - [Tech stack](#tech-stack)
 - [Project structure](#project-structure)
 - [Data model](#data-model)
+- [Associated events (workshops, tutorials, shared tasks, competitions)](#associated-events-workshops-tutorials-shared-tasks-competitions)
+- [Visual design](#visual-design)
+- [Accounts & privacy (Firebase, optional)](#accounts--privacy-firebase-optional)
 - [Ranking methodology](#ranking-methodology)
 - [Europe / Outside Europe classification](#europe--outside-europe-classification)
 - [Verification states](#verification-states)
@@ -59,21 +68,31 @@ npm run format            # Prettier --write
 npm run validate-data     # validate src/data/conferences/*.json + discovery-sources.json
 npm run discover          # run discovery adapters, write reports/discovered-candidates-*.json
 npm run update-conferences # discover + merge candidates into src/data + write a Markdown report
+npm run discover-events    # scan workshop/tutorial programme pages for associated-event candidates
+npm run update-events      # merge new associated-event proposals into src/data/events
 npm run check-sources      # ping every discovery source, update health status in-place
+npm run test:rules         # Firestore Security Rules tests (requires the local emulator + Java)
 ```
 
-There's no database, no auth, and no paid APIs — conference data is
-plain JSON in `src/data/`, statically read at build time.
+No database or paid API is required for the public tracker — conference
+and event data is plain JSON in `src/data/`, statically read at build time.
+Firebase (optional) is the only external service, and only for accounts.
 
 ## Tech stack
 
 - **Next.js 16** (App Router, Turbopack, TypeScript strict mode)
 - **Tailwind CSS v4** + hand-built accessible components (no shadcn/ui
   dependency was needed once the design system settled — badges, cards,
-  filters etc. all live in `src/components/`)
-- **Zod** for every schema: conference data, personal-paper import, env vars
+  filters etc. all live in `src/components/`), on a blue/pink/yellow
+  semantic colour-token system (see [Visual design](#visual-design))
+- **Zod** for every schema: conference/event data, personal-paper import,
+  Firestore records, env vars
 - **date-fns** / **date-fns-tz** for all timezone and AoE handling
-- **Vitest** + **@testing-library/react** for unit tests
+- **Firebase Authentication + Cloud Firestore** (optional, client SDK only)
+  for cross-device account sync — see
+  [Accounts & privacy](#accounts--privacy-firebase-optional)
+- **Vitest** + **@testing-library/react** for unit tests;
+  **@firebase/rules-unit-testing** for Firestore rules tests
 - **Playwright** for a small set of critical e2e flows
 - **tsx** to run the automation scripts directly from TypeScript
 
@@ -125,6 +144,118 @@ conflicting | unverified`) — never a single blanket status for the whole
 - **`auditTrail`** on each edition accumulates `AuditEntry` records
   (field, previous/new value, source, confidence, review status) —
   this is what powers `/updates`.
+
+## Associated events (workshops, tutorials, shared tasks, competitions)
+
+Workshops, tutorials, shared tasks, competitions, challenges, demo tracks,
+industry tracks, doctoral consortia, special sessions, hackathons, and
+symposia are modelled as `CoLocatedEvent` (`src/lib/schema.ts`), stored in
+`src/data/events/*.json`, one file per parent conference edition. Full
+walkthrough (adding one by hand, lifecycle states, location inheritance,
+proceedings, how discovery works and its current limits) is in
+[`docs/EVENTS.md`](./docs/EVENTS.md). The short version:
+
+- Every event's `parentConferenceSeriesId` + `parentConferenceEditionSlug`
+  must resolve to a real, on-disk conference edition — `validate-data`
+  fails the build on an orphaned event.
+- An event's `ranking` is **always independent** of its parent conference's
+  tier — defaults to `Unclassified` with no source, never copied from the
+  parent, never inferred from publisher/indexing/reputation.
+- `lifecycleStatus` distinguishes a parent conference merely _accepting
+  proposals_ from a specific event actually being confirmed — see
+  `UNCONFIRMED_EVENT_LIFECYCLE_STATUSES` — so a proposal is never displayed
+  as a confirmed publication target.
+- Location is inherited from the parent edition by default; an event-level
+  `locationOverride` is used for online/hybrid/separately-hosted events, and
+  the UI always labels which case applies.
+- Routes: `/events` (filterable directory) and `/events/[slug]` (detail
+  page). Every conference detail page also gets a "Workshops, tutorials and
+  associated events" section, the `/timeline` page gets per-type toggle
+  controls (main conference / workshops / tutorials / shared tasks /
+  competitions & challenges / other), the resubmission planner has an
+  "Include workshops and associated events" option with its own filters, and
+  My Papers supports workshop/shared-task/competition/etc. paper targets.
+- **No starter event data is seeded.** See
+  [Known limitations](#known-limitations) and `MANUAL_VERIFICATION.md`.
+
+## Visual design
+
+The previous brown/beige/muted-orange palette has been replaced with a
+blue (primary — structure, links, main-conference deadlines) / pink
+(secondary — workshops and other associated events, expressive accents) /
+yellow (highlight — approaching deadlines, warnings, shared tasks and
+competitions) system, defined centrally as CSS custom properties in
+`src/app/globals.css` (`--primary`/`--accent`, `--secondary`, `--highlight`,
+plus `--background`/`--surface`/`--border`/`--muted-foreground`/
+`--destructive`/`--focus-ring`, each with a light- and dark-mode value) and
+consumed via Tailwind v4's `@theme inline` block — components reference
+`bg-accent`, `text-secondary`, etc., never a raw hex value. Tier colours
+(`TIER_COLORS` in `src/lib/tiers.ts`) and per-deadline-type colours
+(`DEADLINE_TYPE_META` in `src/lib/badge-meta.tsx`) both follow the same
+family (A\*/A → blue, B/workshops → pink, C/shared-tasks/competitions →
+yellow, notification-family → indigo, camera-ready → fuchsia), always paired
+with a text label and icon so colour is never the only signal. Every
+solid-fill colour/foreground pairing used for real UI text was checked
+against WCAG AA (≥ 4.5:1 for normal-size text) — see the comment block at
+the top of `globals.css` for the specific figures.
+
+## Accounts & privacy (Firebase, optional)
+
+**Guest mode is the default and requires nothing.** My Papers and the
+resubmission planner both display a small, permanent note explaining this:
+selections/records stay in `localStorage` in that one browser, are never
+sent anywhere, and are invisible to every other visitor. Refreshing the
+page does not lose guest My Papers data (localStorage persists); the
+planner's in-progress form values are just React state and reset on
+refresh unless you explicitly save the plan.
+
+**Signing in is entirely optional** and only unlocks cross-device sync for
+My Papers and saved resubmission plans, via Firebase Authentication
+(email/password + Google) and Cloud Firestore. Nothing about browsing,
+filtering, the planner's calculations, or calendar export requires an
+account. See [`docs/FIREBASE_SETUP.md`](./docs/FIREBASE_SETUP.md) for how
+to create a Firebase project and wire up the six `NEXT_PUBLIC_FIREBASE_*`
+env vars — until they're set (`NEXT_PUBLIC_FIREBASE_ENABLED=true` plus a
+complete config), Firebase never initialises, sign-in controls simply don't
+render (`src/lib/firebase/config.ts`), and the app is byte-for-byte the
+guest-only experience.
+
+Key points:
+
+- **Data model**: `users/{uid}/papers/{id}`, `users/{uid}/resubmissionPlans/{id}`,
+  `users/{uid}/favourites/{id}`, `users/{uid}/preferences/main` — chosen to
+  minimise reads and let `firestore.rules` validate each record type
+  independently. Every record carries `ownerUid` + `schemaVersion`.
+- **Security rules** (`firestore.rules`, repo root): every read/write under
+  `/users/{userId}/...` requires `request.auth.uid == userId`; ownership
+  (`ownerUid`) can't be changed on update; `schemaVersion` is validated;
+  every other path is default-deny. Tests: `tests/firestore/rules.test.ts`
+  (`npm run test:rules`, requires the local Firestore emulator + a Java
+  runtime — see [Testing](#testing) for whether this actually ran here).
+- **Guest → cloud migration**: on sign-in, if both guest (localStorage) and
+  cloud papers exist, a dialog (`src/components/auth/migration-dialog.tsx`)
+  shows counts and offers Merge / use browser data only / use account data
+  only / decide later — nothing uploads automatically, and merging resolves
+  conflicts by `updatedAt` (`src/lib/firebase/migration.ts`, pure and
+  unit-tested).
+- **Sign-out** clears the in-memory Firestore session cache and returns to
+  whatever's in guest `localStorage` — it does not delete cloud data.
+- **Account settings** (gear/account menu in the header once signed in):
+  change password, send a password-reset email, export all cloud data as
+  JSON, delete all cloud data, delete the account entirely (deletes
+  Firestore documents first, then the Auth account — see the caveat on
+  `deleteAllUserData` in `src/lib/firebase/firestore-data.ts` about this
+  being a client-side enumeration of this app's own known collections, not
+  a generic recursive delete).
+- **Cost-conscious by design**: targets the Firebase **Spark (free)**
+  plan — no Cloud Functions, no Cloud Storage, no phone auth, no paid
+  extensions, nothing that would auto-enable billing. Reads/writes are
+  session-cached (`firestore-data.ts`) rather than re-fetched on every
+  render.
+- **What is not claimed**: Firebase has not been configured with real
+  project credentials in this repository; authentication has not been
+  tested against a live Firebase project; data is not end-to-end encrypted;
+  no manuscript files are ever uploaded (only paper metadata).
 
 ## Ranking methodology
 
@@ -199,30 +330,73 @@ update-conferences.ts    → re-runs discovery, merges any new/changed dates
                             verificationStatus: "discovered", appends an
                             AuditEntry per change (reviewStatus: "pending"),
                             writes reports/update-report-<date>.md
-validate-conference-data.ts → Zod-validates everything; exit 1 on failure
+discover-events.ts       → scans enabled workshop/tutorial-programme
+                            sources, classifies each linked event's type,
+                            writes reports/discovered-events-<date>.json
+update-events.ts         → resolves each candidate's parent edition (never
+                            "whichever is newest" — see edition-matching.ts),
+                            writes NEW event proposals (lifecycleStatus
+                            "unverified", ranking Unclassified) into
+                            src/data/events/*.json, writes
+                            reports/event-update-report-<date>.md
+validate-conference-data.ts → Zod-validates conferences AND events; checks
+                               for orphaned events, duplicate ids/slugs,
+                               ranking-without-source; exit 1 on failure
 generate-update-report.ts   → Markdown report builder (used as a library
-                               by update-conferences.ts)
+                               by update-conferences.ts / update-events.ts)
 check-source-health.ts      → pings every source, records isDead / last-
                                checked / last-successful-scan in place
+
+shared/parse-helpers.ts      → dependency-free HTML/text helpers reused by
+                                every adapter: meta/title/link extraction,
+                                link classification, date-text parsing,
+                                AoE/timezone-mention detection, table and
+                                <dl> parsing, heading-bounded section
+                                extraction
+shared/merge-safeguards.ts   → evaluateFieldCandidate() — the single gate
+                                every discovered field passes through before
+                                being written: empty-value, official-value,
+                                tentative-vs-official, workshop-vs-main-track,
+                                ranking-needs-source, low-confidence-report-
+                                only, conflicting-source, and large-date-
+                                shift/extension-flagging rules, each with a
+                                regression test in tests/unit/merge-
+                                safeguards.test.ts
+shared/edition-matching.ts   → matchEditionForCandidate() — explicit year >
+                                slug > page metadata year > conference-date
+                                year > registry-configured year; returns "no
+                                match" rather than ever guessing "the newest
+                                edition"
+shared/event-discovery.ts    → classifies programme-page links into
+                                CoLocatedEventType and resolves the parent
+                                edition the same safe way
 ```
 
 **Nothing is ever auto-promoted to `official` or `verified`.** Discovery
 only ever writes `verificationStatus: "discovered"` — a human reviewing
 the resulting PR is the only thing that can upgrade it. `weekly-conference-
-update.yml` runs `update-conferences.ts`, validates the result, skips
-opening a PR if `git diff` on `src/data/conferences` is empty, and
-otherwise commits to a branch named `automated/conference-update-YYYY-MM-DD`
-and opens a PR — main is never written to directly. The PR body is the
-generated Markdown report; labels `automated-update`, `conference-data`,
-`needs-verification` are attached if they exist in the repo (see
-`MANUAL_VERIFICATION.md` — create them once).
+update.yml` runs `update-conferences.ts` **and** `update-events.ts`,
+validates the result, skips opening a PR if `git diff` on
+`src/data/conferences src/data/events` is empty, and otherwise commits to a
+branch named `automated/conference-update-YYYY-MM-DD` and opens **one
+combined PR** (never two, never a second workflow) — main is never written
+to directly. The PR body concatenates both Markdown reports; labels
+`automated-update`, `conference-data`, `needs-verification` are attached if
+they exist in the repo (see `MANUAL_VERIFICATION.md` — create them once).
 
 The included `jsonLdEventAdapter` looks for schema.org `Event` JSON-LD on
-official pages — the structured, machine-readable format called for in the
-brief, preferred over CSS-selector scraping. Most conference sites don't
-actually publish this yet, so expect it to return few or zero candidates
-until more adapters are written per-source; that's an honest limitation,
-not a bug (see [Known limitations](#known-limitations)).
+official pages, and the new `importantDatesTableAdapter` parses a generic
+HTML `<table>`/`<dl>` of label/date pairs — both are genuinely implemented
+and unit-tested against fixtures, but **neither has been verified against
+any specific live conference site's exact markup in this change**, and no
+per-family (ACL/NeurIPS/ICML/...) adapter beyond these two generic ones was
+written — see [Known limitations](#known-limitations). Event discovery
+(`discover-events.ts`) implements steps 1-4 of the associated-event
+discovery flow (scan programme page → extract links → classify type →
+match parent edition) but does not yet follow an individual event's own
+page to extract its own dates/CFP/proceedings (steps 5-9) — every generated
+event proposal starts with empty `dates`, explicitly flagged for manual
+completion.
 
 ## Running the updater locally
 
@@ -255,16 +429,31 @@ on to the next source.
 
 ## Testing
 
-- **Unit tests** (`npm test`): every pure function in `src/lib/` — tier
-  ordering, region/continent classification, status derivation (including
-  today/tomorrow/approaching/passed/tentative), AoE conversion, filtering,
-  sorting, planner assessments, `.ics` generation (escaping, UTC times,
-  unique UIDs, RFC 5545 line folding), diffing, and Zod schemas. 108 tests
-  as of this writing.
+- **Unit tests** (`npm test`): every pure function in `src/lib/` and
+  `scripts/shared/` — tier ordering, region/continent classification,
+  status derivation (including today/tomorrow/approaching/passed/tentative),
+  AoE conversion, filtering/sorting for both conferences and events, planner
+  assessments (main-conference and event), `.ics` generation (escaping, UTC
+  times, unique UIDs, RFC 5545 line folding), diffing (conference and
+  event), Zod schemas (conference and event), edition matching, merge
+  safeguards, HTML/date parsing helpers, the personal-paper localStorage
+  migration, the Firebase guest-to-cloud migration logic, and Firebase
+  config resolution. **229 tests** as of this writing.
 - **e2e tests** (`npm run test:e2e`): filter by tier, filter Europe vs.
   Outside Europe, open a conference detail page, run the resubmission
-  planner, add + export a personal paper as JSON. Playwright's `webServer`
-  config builds and starts the app itself — no separate `npm run dev` needed.
+  planner (including the "include events" option and its sub-filters), the
+  events directory and timeline event-type toggles, the guest My Papers
+  and planner privacy notes, add + export a personal paper as JSON, and
+  that sign-in controls don't render when Firebase is unconfigured.
+  **12 tests** as of this writing. Playwright's `webServer` config builds
+  and starts the app itself — no separate `npm run dev` needed.
+- **Firestore rules tests** (`npm run test:rules`): 11 cases in
+  `tests/firestore/rules.test.ts` covering unauthenticated denial,
+  cross-user read/write denial, ownership-change rejection, schema-version
+  validation, and default-deny on unknown paths. Requires the local
+  Firestore emulator (and therefore a Java runtime) — see
+  [Accounts & privacy](#accounts--privacy-firebase-optional) for whether
+  this actually ran in this environment.
 
 ## Deploying to Vercel
 
@@ -296,6 +485,29 @@ required. Full step-by-step instructions: [`docs/DEPLOYMENT.md`](./docs/DEPLOYME
 - **`/updates` starts empty.** The seed data's `auditTrail` arrays are
   empty by design — there's no fabricated update history. It fills in once
   the first automated PR is reviewed and merged.
+- **No starter associated-event data.** `src/data/events/` is intentionally
+  empty — populating it honestly requires visiting each event's own current
+  official page, which wasn't done this pass specifically to avoid
+  inventing a plausible-sounding workshop name, deadline, or ranking. See
+  `docs/EVENTS.md`.
+- **Event field-level discovery isn't implemented yet.** `update-events.ts`
+  only _proposes new events_ (name, type, parent, link) from a programme
+  page; it doesn't yet scan an individual event's own site for its dates,
+  CFP, or proceedings status.
+- **Only two discovery adapters exist**: the generic JSON-LD adapter and a
+  generic HTML table/definition-list adapter. No per-conference-family
+  (ACL/NeurIPS/ICML/ICLR/AAAI/IJCAI/CVPR/ICCV/ECCV) adapter was written —
+  the reusable parsing helpers (`shared/parse-helpers.ts`) are the
+  foundation for adding them later, but none is claimed as done here.
+- **Firestore rules tests could not be executed in this environment** — the
+  Firestore emulator requires a local Java runtime, which wasn't available
+  when this change was made. `tests/firestore/rules.test.ts` is written and
+  intended to be run via `npm run test:rules` wherever Java + the Firebase
+  CLI are available; see `docs/FIREBASE_SETUP.md`.
+- **Firebase itself is unconfigured** — no real Firebase project credentials
+  were supplied or tested in this change; `NEXT_PUBLIC_FIREBASE_ENABLED`
+  defaults to off, and the app is guest-only until someone completes
+  `docs/FIREBASE_SETUP.md`.
 
 ## Ethical scraping practices
 

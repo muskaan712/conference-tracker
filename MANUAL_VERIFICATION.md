@@ -109,6 +109,21 @@ All public placeholders have been replaced. Site branding lives in
   env vars automatically, then to `http://localhost:3000` for local dev. Set
   this explicitly only once you've pinned a custom production domain.
 
+## Associated events (workshops, tutorials, shared tasks, competitions)
+
+The events architecture (schema, validation, routes, timeline/planner/paper
+integration, discovery pipeline) is fully built — see
+[`docs/EVENTS.md`](docs/EVENTS.md). **`src/data/events/` intentionally
+contains no event data yet.** Populating even a small starter set honestly
+requires visiting each event's current official page to confirm its name,
+type, and status; that verification pass was not performed as part of this
+change, specifically to avoid inventing a plausible-sounding workshop name,
+deadline, or ranking. Running `npm run discover-events` /
+`npm run update-events` against the discovery-sources registry is the
+intended way to populate this directory once at least one
+`workshop-programme`-type source is configured and enabled — none is
+configured in the registry yet either, for the same reason.
+
 ## Other things a human should double-check
 
 - The `.github/workflows/weekly-conference-update.yml` workflow assumes the

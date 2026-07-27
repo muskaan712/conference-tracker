@@ -1,4 +1,5 @@
 import type {
+  CoLocatedEvent,
   ConferenceDate,
   ConferenceEdition,
   DeadlineType,
@@ -43,6 +44,30 @@ export function makeEdition(overrides: Partial<ConferenceEdition> = {}): Confere
     paperTypes: ["long-paper"],
     referenceDates: [],
     archiveHistory: [],
+    auditTrail: [],
+    ...overrides,
+  };
+}
+
+export function makeEvent(overrides: Partial<CoLocatedEvent> = {}): CoLocatedEvent {
+  return {
+    id: "exc-2026-workshop",
+    slug: "exc-2026-workshop",
+    name: "Example Workshop",
+    acronym: "EXW",
+    type: "workshop",
+    parentConferenceSeriesId: "exc",
+    parentConferenceEditionSlug: "exc-2026",
+    editionYear: 2026,
+    lifecycleStatus: "unverified",
+    researchAreas: ["ml"],
+    keywords: [],
+    dates: [],
+    paperTypes: [],
+    tracks: [],
+    ranking: { tier: "Unclassified" },
+    verificationStatus: "unverified",
+    sourceUrls: [],
     auditTrail: [],
     ...overrides,
   };

@@ -1,19 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, Plus, Trash2, Upload } from "lucide-react";
-import { useLocalStorage } from "@/lib/use-local-storage";
+import { Download, Plus, Trash2, Upload, CloudCheck } from "lucide-react";
 import {
   formatZodError,
+  migratePersonalPaperRecord,
   PAPER_STAGES,
+  PAPER_TARGET_TYPE_LABELS,
   personalPaperExportSchema,
   personalPaperSchema,
   type PersonalPaper,
 } from "@/lib/paper-schema";
+import { usePersonalPapersStore } from "@/lib/firebase/use-papers-store";
 import { PaperEditor } from "./paper-editor";
 import { EmptyState } from "./misc";
-
-const STORAGE_KEY = "ai-conference-tracker.my-papers.v1";
+import { MigrationDialog } from "./auth/migration-dialog";
 
 const COLOR_CLASSES: Record<PersonalPaper["colorLabel"], string> = {
   slate: "border-l-stone-400",
@@ -25,22 +26,28 @@ const COLOR_CLASSES: Record<PersonalPaper["colorLabel"], string> = {
 };
 
 export function PersonalPaperBoard() {
-  const [papers, setPapers, hydrated] = useLocalStorage<PersonalPaper[]>(STORAGE_KEY, []);
+  const {
+    papers,
+    hydrated,
+    mode,
+    savePaper: storeSavePaper,
+    deletePaper: storeDeletePaper,
+    replaceAll,
+    pendingMigration,
+    resolvePendingMigration,
+  } = usePersonalPapersStore();
   const [editing, setEditing] = useState<PersonalPaper | null | undefined>(undefined);
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [importError, setImportError] = useState<string[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function savePaper(paper: PersonalPaper) {
-    setPapers((prev) => {
-      const exists = prev.some((p) => p.id === paper.id);
-      return exists ? prev.map((p) => (p.id === paper.id ? paper : p)) : [...prev, paper];
-    });
+    storeSavePaper(paper);
     setEditing(undefined);
   }
 
   function deletePaper(id: string) {
-    setPapers((prev) => prev.filter((p) => p.id !== id));
+    storeDeletePaper(id);
   }
 
   function exportPapers() {
@@ -59,17 +66,26 @@ export function PersonalPaperBoard() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      const parsed = personalPaperExportSchema.safeParse(json);
+      const migrated =
+        json && typeof json === "object" && Array.isArray((json as { papers?: unknown }).papers)
+          ? {
+              ...json,
+              papers: (json as { papers: unknown[] }).papers.map(migratePersonalPaperRecord),
+            }
+          : Array.isArray(json)
+            ? json.map(migratePersonalPaperRecord)
+            : json;
+      const parsed = personalPaperExportSchema.safeParse(migrated);
       if (!parsed.success) {
-        const singlePapers = personalPaperSchema.array().safeParse(json);
+        const singlePapers = personalPaperSchema.array().safeParse(migrated);
         if (singlePapers.success) {
-          setPapers(singlePapers.data);
+          replaceAll(singlePapers.data);
           return;
         }
         setImportError(formatZodError(parsed.error));
         return;
       }
-      setPapers(parsed.data.papers);
+      replaceAll(parsed.data.papers);
     } catch {
       setImportError(["The selected file is not valid JSON."]);
     }
@@ -79,6 +95,26 @@ export function PersonalPaperBoard() {
 
   return (
     <div className="space-y-6">
+      {pendingMigration && (
+        <MigrationDialog preview={pendingMigration} onResolve={resolvePendingMigration} />
+      )}
+      {mode === "cloud" ? (
+        <p
+          role="note"
+          className="border-border-strong bg-surface text-muted-foreground flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs"
+        >
+          <CloudCheck aria-hidden className="h-3.5 w-3.5 shrink-0" />
+          Synced to your account — readable only by you, on any device you sign in on.
+        </p>
+      ) : (
+        <p
+          role="note"
+          className="border-border-strong bg-surface text-muted-foreground rounded-lg border px-3 py-2 text-xs"
+        >
+          <strong>Guest records are stored only in this browser.</strong> They are not uploaded or
+          visible to other visitors.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -170,7 +206,7 @@ export function PersonalPaperBoard() {
               <button
                 type="button"
                 onClick={() => {
-                  setPapers([]);
+                  replaceAll([]);
                   setConfirmingClear(false);
                 }}
                 className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white"
@@ -222,7 +258,8 @@ export function PersonalPaperBoard() {
                       ) : null}
                       {paper.currentTarget ? (
                         <p className="text-muted-foreground mt-1 text-xs">
-                          Target: {paper.currentTarget}
+                          Target ({PAPER_TARGET_TYPE_LABELS[paper.currentTarget.type]}):{" "}
+                          {paper.currentTarget.label}
                         </p>
                       ) : null}
                       <div className="mt-2 flex gap-2 text-xs">

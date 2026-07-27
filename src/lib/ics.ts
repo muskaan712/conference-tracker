@@ -1,5 +1,5 @@
 import { formatInTimeZone } from "date-fns-tz";
-import type { ConferenceDate, ConferenceEdition } from "./schema";
+import type { CoLocatedEvent, ConferenceDate, ConferenceEdition } from "./schema";
 import { resolveDateInstant } from "./datetime";
 
 /** Escapes text per RFC 5545 (backslash, semicolon, comma, then newlines). */
@@ -163,6 +163,59 @@ export function icsForDeadlineSet(
     });
   });
   return buildIcsCalendar(events, calendarName);
+}
+
+function eventTimezoneNote(date: ConferenceDate): string {
+  if (date.isAoE) return "Original timezone: Anywhere on Earth (AoE, UTC-12).";
+  return `Original timezone: ${date.timezone}.`;
+}
+
+/** Mirrors descriptionForDate but for an associated event rather than a main conference edition. */
+export function descriptionForEventDate(event: CoLocatedEvent, date: ConferenceDate): string {
+  const parts = [
+    `Event: ${event.name}${event.acronym ? ` (${event.acronym})` : ""}`,
+    `Deadline type: ${date.label}`,
+  ];
+  if (event.officialWebsiteUrl) parts.push(`Official website: ${event.officialWebsiteUrl}`);
+  if (date.sourceUrl) parts.push(`Source: ${date.sourceUrl}`);
+  parts.push(eventTimezoneNote(date));
+  const warning = verificationWarning(date);
+  if (warning) parts.push(warning);
+  return parts.join("\n");
+}
+
+/** Single associated-event deadline -> one-event .ics calendar. */
+export function icsForEventDate(event: CoLocatedEvent, date: ConferenceDate, now?: Date): string {
+  const instant = resolveDateInstant(date);
+  const end = date.endsAt ? resolveDateInstant({ ...date, startsAt: date.endsAt }) : undefined;
+  const icsEvent = buildIcsEvent({
+    uidSeed: `${event.slug}-${date.id}`,
+    summary: `${event.acronym ?? event.name}: ${date.label}`,
+    description: descriptionForEventDate(event, date),
+    start: instant,
+    end,
+    url: event.officialWebsiteUrl,
+    now,
+  });
+  return buildIcsCalendar([icsEvent], `${event.acronym ?? event.name} - ${date.label}`);
+}
+
+/** All dates for a single associated event -> multi-event .ics calendar. */
+export function icsForEvent(event: CoLocatedEvent, now?: Date): string {
+  const events = event.dates.map((date) => {
+    const instant = resolveDateInstant(date);
+    const end = date.endsAt ? resolveDateInstant({ ...date, startsAt: date.endsAt }) : undefined;
+    return buildIcsEvent({
+      uidSeed: `${event.slug}-${date.id}`,
+      summary: `${event.acronym ?? event.name}: ${date.label}`,
+      description: descriptionForEventDate(event, date),
+      start: instant,
+      end,
+      url: event.officialWebsiteUrl,
+      now,
+    });
+  });
+  return buildIcsCalendar(events, event.acronym ?? event.name);
 }
 
 export function downloadIcsFile(content: string, filename: string): void {
