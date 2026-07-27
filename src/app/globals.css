@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #faf7f1;
+  --surface: #ffffff;
+  --surface-raised: #fffdfa;
+  --foreground: #211c15;
+  --muted-foreground: #6b6255;
+  --border: #e4ddcf;
+  --border-strong: #cfc5b0;
+  --accent: #b5502d;
+  --accent-foreground: #fff8f0;
+  --accent-soft: #f5e2d6;
+  --focus-ring: #1d6f66;
+}
+
+.dark {
+  --background: #16130f;
+  --surface: #201c16;
+  --surface-raised: #262019;
+  --foreground: #f1eae0;
+  --muted-foreground: #b0a695;
+  --border: #3a332a;
+  --border-strong: #4c4335;
+  --accent: #e28a5c;
+  --accent-foreground: #1b1108;
+  --accent-soft: #3a2718;
+  --focus-ring: #6fd4c6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-focus-ring: var(--focus-ring);
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-source-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}

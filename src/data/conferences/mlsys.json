@@ -1,0 +1,27 @@
+{
+  "seriesId": "mlsys",
+  "editions": [
+    {
+      "name": "Conference on Machine Learning and Systems",
+      "acronym": "MLSys",
+      "slug": "mlsys-2027",
+      "editionYear": 2027,
+      "description": "Conference at the intersection of machine learning and systems engineering.",
+      "seriesId": "mlsys",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["ai-systems", "ml"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

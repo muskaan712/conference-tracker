@@ -1,0 +1,59 @@
+{
+  "seriesId": "icml",
+  "editions": [
+    {
+      "name": "International Conference on Machine Learning",
+      "acronym": "ICML",
+      "slug": "icml-2026",
+      "editionYear": 2026,
+      "description": "Leading international conference on machine learning, organized by the International Machine Learning Society.",
+      "seriesId": "icml",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=ICML&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27"
+      },
+      "researchAreas": ["ml", "ai"],
+      "city": "Seoul",
+      "country": "South Korea",
+      "countryCode": "KR",
+      "continent": "Asia",
+      "geographicCategory": "Outside Europe",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "icml-2026-start",
+          "type": "conference-start",
+          "label": "Main conference begins",
+          "startsAt": "2026-07-07T09:00:00",
+          "timezone": "Asia/Seoul",
+          "verificationStatus": "official",
+          "sourceUrl": "https://icml.cc/",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "icml-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends (incl. workshops)",
+          "startsAt": "2026-07-11T18:00:00",
+          "timezone": "Asia/Seoul",
+          "verificationStatus": "official",
+          "sourceUrl": "https://icml.cc/",
+          "verifiedAt": "2026-07-27"
+        }
+      ],
+      "tracks": ["Main Conference", "Workshops"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://icml.cc/",
+      "notes": "ICML 2026 (Seoul) has concluded. The 2027 edition had not published an official call for papers as of the last scan; check icml.cc directly.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-27",
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

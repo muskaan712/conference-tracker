@@ -1,0 +1,27 @@
+{
+  "seriesId": "wsdm",
+  "editions": [
+    {
+      "name": "ACM International Conference on Web Search and Data Mining",
+      "acronym": "WSDM",
+      "slug": "wsdm-2027",
+      "editionYear": 2027,
+      "description": "Research conference on web search, data mining, and related areas, organized by ACM SIGIR/SIGWEB.",
+      "seriesId": "wsdm",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["information-retrieval", "data-mining"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

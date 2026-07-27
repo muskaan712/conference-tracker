@@ -1,0 +1,27 @@
+{
+  "seriesId": "naacl",
+  "editions": [
+    {
+      "name": "Annual Conference of the North American Chapter of the Association for Computational Linguistics",
+      "acronym": "NAACL",
+      "slug": "naacl-2027",
+      "editionYear": 2027,
+      "description": "North American regional conference of the Association for Computational Linguistics.",
+      "seriesId": "naacl",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["nlp"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference", "Findings"],
+      "paperTypes": ["long-paper", "short-paper", "findings"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

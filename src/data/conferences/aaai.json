@@ -1,0 +1,94 @@
+{
+  "seriesId": "aaai",
+  "editions": [
+    {
+      "name": "AAAI Conference on Artificial Intelligence",
+      "acronym": "AAAI",
+      "slug": "aaai-2027",
+      "editionYear": 2027,
+      "description": "Flagship conference of the Association for the Advancement of Artificial Intelligence, covering the full breadth of AI research.",
+      "seriesId": "aaai",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=AAAI&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27"
+      },
+      "researchAreas": ["ai", "ml"],
+      "city": "Montréal",
+      "country": "Canada",
+      "countryCode": "CA",
+      "continent": "North America",
+      "geographicCategory": "Outside Europe",
+      "venueName": "Palais des Congrès de Montréal",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "aaai-2027-abstract",
+          "type": "abstract",
+          "label": "Abstract submission deadline",
+          "startsAt": "2026-07-21T00:00:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "aaai-2027-full-paper",
+          "type": "full-paper",
+          "label": "Full paper submission deadline",
+          "startsAt": "2026-07-28T00:00:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "aaai-2027-supplementary",
+          "type": "full-paper",
+          "label": "Supplementary material & code deadline",
+          "startsAt": "2026-07-31T00:00:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/",
+          "verifiedAt": "2026-07-27",
+          "notes": "Supplementary material/code deadline, not the post-acceptance camera-ready deadline (not yet published)."
+        },
+        {
+          "id": "aaai-2027-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2027-02-16T09:00:00",
+          "timezone": "America/Toronto",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "aaai-2027-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2027-02-23T18:00:00",
+          "timezone": "America/Toronto",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/",
+          "verifiedAt": "2026-07-27"
+        }
+      ],
+      "tracks": ["Main Technical Track", "IAAI"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://aaai.org/conference/aaai/aaai-27/",
+      "cfpUrl": "https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-27",
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

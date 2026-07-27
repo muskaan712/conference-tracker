@@ -1,0 +1,121 @@
+name: Weekly conference data update
+
+# Requires repo setting: Settings → Actions → General → Workflow permissions
+# → "Read and write permissions" (or keep the explicit `permissions:` block
+# below, which is sufficient on its own for most repos).
+#
+# Schedule: Mondays 06:00 UTC — 07:00 Europe/Berlin in winter (CET, UTC+1),
+# 08:00 Europe/Berlin in summer (CEST, UTC+2). GitHub Actions schedules are
+# best-effort and may run a few minutes late under high load; use
+# `workflow_dispatch` below to trigger a run on demand instead of waiting.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check discovery source health
+        run: npm run check-sources
+        continue-on-error: true
+
+      - name: Discover + merge candidate updates
+        run: npm run update-conferences
+
+      - name: Validate resulting conference data
+        run: npm run validate-data
+
+      - name: Upload run reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: conference-update-reports-${{ github.run_id }}
+          path: reports/
+          retention-days: 90
+
+      - name: Check for changes
+        id: changes
+        run: |
+          # Only conference data changes warrant a PR; source-health bookkeeping
+          # (last-checked timestamps) alone is not worth a review cycle.
+          if git diff --quiet -- src/data/conferences; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ensure required labels exist
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Idempotent: --force updates the label if it already exists rather
+          # than erroring. A `|| true` per label means one failure here (e.g.
+          # a permissions quirk) never blocks the PR from being opened below.
+          gh label create "automated-update" --color "0E8A16" \
+            --description "Proposed by the weekly conference scanner" --force || true
+          gh label create "conference-data" --color "1D76DB" \
+            --description "Conference metadata or deadline changes" --force || true
+          gh label create "needs-verification" --color "D93F0B" \
+            --description "Human verification required before merging" --force || true
+
+      - name: Create branch, commit, and open PR
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DATE=$(date +%Y-%m-%d)
+          BRANCH="automated/conference-update-${DATE}"
+          REPORT_FILE=$(ls reports/update-report-*.md | head -n 1)
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add src/data
+          git commit -m "Automated conference data update ${DATE}"
+          git push origin "$BRANCH"
+
+          # Deliberately created WITHOUT --label here: if a label attach were
+          # to fail mid-creation, retrying `gh pr create` for the same branch
+          # would itself fail with "pull request already exists". Labels are
+          # attached as a separate, safely-retriable best-effort step below.
+          gh pr create \
+            --title "Automated conference data update ${DATE}" \
+            --body-file "$REPORT_FILE" \
+            --base main \
+            --head "$BRANCH"
+
+      - name: Attach labels to the PR (best-effort)
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          BRANCH="automated/conference-update-${DATE}"
+          gh pr edit "$BRANCH" \
+            --add-label "automated-update" \
+            --add-label "conference-data" \
+            --add-label "needs-verification" \
+            || echo "::warning::Could not attach one or more labels; the PR was still created and needs review."
+
+      - name: No changes this run
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "No candidate changes discovered this run; skipping PR."

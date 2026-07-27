@@ -1,0 +1,32 @@
+{
+  "seriesId": "kdd",
+  "editions": [
+    {
+      "name": "ACM SIGKDD Conference on Knowledge Discovery and Data Mining",
+      "acronym": "KDD",
+      "slug": "kdd-2027",
+      "editionYear": 2027,
+      "description": "Premier conference on knowledge discovery and data mining, organized by ACM SIGKDD.",
+      "seriesId": "kdd",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=KDD&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27",
+        "notes": "Tier verified; the 2027 host city/venue had not been officially announced as of the last scan."
+      },
+      "researchAreas": ["data-mining", "ml"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "seriesId": "cikm",
+  "editions": [
+    {
+      "name": "ACM International Conference on Information and Knowledge Management",
+      "acronym": "CIKM",
+      "slug": "cikm-2027",
+      "editionYear": 2027,
+      "description": "Conference covering information and knowledge management, organized by ACM SIGWEB.",
+      "seriesId": "cikm",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["data-mining", "information-retrieval"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

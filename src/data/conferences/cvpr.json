@@ -1,0 +1,37 @@
+{
+  "seriesId": "cvpr",
+  "editions": [
+    {
+      "name": "IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+      "acronym": "CVPR",
+      "slug": "cvpr-2027",
+      "editionYear": 2027,
+      "description": "Premier annual computer vision event, organized by the IEEE Computer Society and the Computer Vision Foundation.",
+      "seriesId": "cvpr",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=CVPR&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27"
+      },
+      "researchAreas": ["computer-vision", "ml"],
+      "city": "Seattle",
+      "country": "United States",
+      "countryCode": "US",
+      "continent": "North America",
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://cvpr.thecvf.com/",
+      "notes": "As of the last scan, the official CVF site had not published a CVPR 2027 call for papers. A Seattle venue and dates are reported by third-party deadline trackers but are not yet confirmed on the official site, so the location fields above are withheld pending confirmation.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "seriesId": "miccai",
+  "editions": [
+    {
+      "name": "International Conference on Medical Image Computing and Computer Assisted Intervention",
+      "acronym": "MICCAI",
+      "slug": "miccai-2027",
+      "editionYear": 2027,
+      "description": "Premier international conference on medical image computing and computer-assisted interventions.",
+      "seriesId": "miccai",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["medical-ai", "computer-vision"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

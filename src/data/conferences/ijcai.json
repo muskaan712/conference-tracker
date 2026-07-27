@@ -1,0 +1,32 @@
+{
+  "seriesId": "ijcai",
+  "editions": [
+    {
+      "name": "International Joint Conference on Artificial Intelligence",
+      "acronym": "IJCAI",
+      "slug": "ijcai-2027",
+      "editionYear": 2027,
+      "description": "One of the leading general-purpose international conferences in artificial intelligence, organized by IJCAI Organization.",
+      "seriesId": "ijcai",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=IJCAI&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27",
+        "notes": "Tier verified; the 2027 host city/venue had not been officially announced as of the last scan."
+      },
+      "researchAreas": ["ai", "ml"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

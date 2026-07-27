@@ -1,0 +1,27 @@
+{
+  "seriesId": "aistats",
+  "editions": [
+    {
+      "name": "International Conference on Artificial Intelligence and Statistics",
+      "acronym": "AISTATS",
+      "slug": "aistats-2027",
+      "editionYear": 2027,
+      "description": "Interdisciplinary conference at the intersection of artificial intelligence, machine learning, and statistics.",
+      "seriesId": "aistats",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["ml", "ai"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

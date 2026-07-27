@@ -1,0 +1,27 @@
+{
+  "seriesId": "coling",
+  "editions": [
+    {
+      "name": "International Conference on Computational Linguistics",
+      "acronym": "COLING",
+      "slug": "coling-2027",
+      "editionYear": 2027,
+      "description": "One of the longest-running conferences in computational linguistics, held biennially.",
+      "seriesId": "coling",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["nlp"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "seriesId": "colm",
+  "editions": [
+    {
+      "name": "Conference on Language Modeling",
+      "acronym": "COLM",
+      "slug": "colm-2026",
+      "editionYear": 2026,
+      "description": "Conference dedicated to the theory, practice, and applications of language models, first held in 2024.",
+      "seriesId": "colm",
+      "ranking": {
+        "tier": "Unclassified",
+        "notes": "COLM is a very new venue (first held 2024) and does not yet appear to have an established CORE rank."
+      },
+      "researchAreas": ["nlp", "ml"],
+      "city": "San Francisco",
+      "country": "United States",
+      "countryCode": "US",
+      "continent": "North America",
+      "geographicCategory": "Outside Europe",
+      "venueName": "Hilton San Francisco Union Square",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "colm-2026-abstract",
+          "type": "abstract",
+          "label": "Abstract submission deadline",
+          "startsAt": "2026-03-26T00:00:00",
+          "timezone": "America/Los_Angeles",
+          "verificationStatus": "official",
+          "sourceUrl": "https://colmweb.org/dates.html",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "colm-2026-full-paper",
+          "type": "full-paper",
+          "label": "Full paper submission deadline",
+          "startsAt": "2026-03-31T00:00:00",
+          "timezone": "America/Los_Angeles",
+          "verificationStatus": "official",
+          "sourceUrl": "https://colmweb.org/dates.html",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "colm-2026-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2026-10-06T09:00:00",
+          "timezone": "America/Los_Angeles",
+          "verificationStatus": "official",
+          "sourceUrl": "https://colmweb.org/",
+          "verifiedAt": "2026-07-27"
+        },
+        {
+          "id": "colm-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2026-10-09T18:00:00",
+          "timezone": "America/Los_Angeles",
+          "verificationStatus": "official",
+          "sourceUrl": "https://colmweb.org/",
+          "verifiedAt": "2026-07-27"
+        }
+      ],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://colmweb.org/",
+      "cfpUrl": "https://colmweb.org/cfp.html",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-27",
+      "lastScannedAt": "2026-07-27",
+      "auditTrail": []
+    }
+  ]
+}

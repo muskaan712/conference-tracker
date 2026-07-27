@@ -1,0 +1,31 @@
+{
+  "seriesId": "iccv",
+  "editions": [
+    {
+      "name": "IEEE/CVF International Conference on Computer Vision",
+      "acronym": "ICCV",
+      "slug": "iccv-2027",
+      "editionYear": 2027,
+      "description": "Biennial computer vision conference organized by the IEEE Computer Society and the Computer Vision Foundation.",
+      "seriesId": "iccv",
+      "ranking": {
+        "tier": "A*",
+        "source": "ICORE2026 (CORE conference rankings)",
+        "sourceUrl": "https://portal.core.edu.au/conf-ranks/?search=ICCV&by=all&sort=atitle&page=1",
+        "verifiedAt": "2026-07-27",
+        "notes": "Tier verified; venue/dates not yet announced as of the last scan."
+      },
+      "researchAreas": ["computer-vision"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "referenceDates": [],
+      "archiveHistory": [],
+      "auditTrail": []
+    }
+  ]
+}
