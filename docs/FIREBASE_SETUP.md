@@ -78,6 +78,15 @@ Console and click **Publish**.
 
 `localhost` is authorised by default for local development.
 
+Google sign-in uses a popup first (`signInWithPopup`), falling back to a
+full-page redirect (`signInWithRedirect`) only if the popup itself can't be
+shown (blocked, or an environment that doesn't support popups). If Google
+sign-in fails, the UI now surfaces the real Firebase error code (in the
+console, always, and via a specific message for common cases — see
+`src/lib/firebase/auth-errors.ts`) instead of one generic message, so a
+missing authorised domain or a disabled provider is diagnosable from the
+error text itself rather than requiring a source dive.
+
 ## 8. Configure environment variables
 
 **Local development** — copy the values from step 2 into `.env.local`
