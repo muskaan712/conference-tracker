@@ -1,0 +1,91 @@
+{
+  "seriesId": "doceng",
+  "editions": [
+    {
+      "name": "ACM Symposium on Document Engineering",
+      "acronym": "DocEng",
+      "slug": "doceng-2026",
+      "editionYear": 2026,
+      "description": "ACM symposium on the engineering of documents and document-processing systems.",
+      "seriesId": "doceng",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["information-retrieval"],
+      "city": "Fribourg",
+      "country": "Switzerland",
+      "countryCode": "CH",
+      "continent": "Europe",
+      "geographicCategory": "Europe",
+      "venueName": "HES-SO / University of Fribourg",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "doceng-2026-abstract",
+          "type": "abstract",
+          "label": "Full paper abstract deadline",
+          "startsAt": "2026-04-21T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://doceng.org/doceng2026/cfp",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "doceng-2026-full-paper",
+          "type": "full-paper",
+          "label": "Full paper manuscript deadline",
+          "startsAt": "2026-05-05T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://doceng.org/doceng2026/cfp",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "doceng-2026-notification",
+          "type": "notification",
+          "label": "Full paper acceptance notification",
+          "startsAt": "2026-06-08T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://doceng.org/doceng2026/cfp",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "doceng-2026-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2026-08-25T09:00:00",
+          "timezone": "Europe/Zurich",
+          "verificationStatus": "official",
+          "sourceUrl": "https://doceng.org/doceng2026",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "doceng-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2026-08-28T18:00:00",
+          "timezone": "Europe/Zurich",
+          "verificationStatus": "official",
+          "sourceUrl": "https://doceng.org/doceng2026",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "tracks": ["Full Papers", "Short Papers & Demonstrations"],
+      "paperTypes": ["long-paper", "short-paper", "demo-paper"],
+      "officialWebsiteUrl": "https://doceng.org/doceng2026",
+      "cfpUrl": "https://doceng.org/doceng2026/cfp",
+      "notes": "26th edition; short paper/demonstration deadlines (abstract 9 June, manuscript 16 June, notification 14 July 2026) also published but not modelled as separate date entries here — see the official CFP for the full track-by-track timeline.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}

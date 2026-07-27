@@ -1,0 +1,67 @@
+{
+  "seriesId": "icaif",
+  "editions": [
+    {
+      "name": "ACM International Conference on AI in Finance",
+      "acronym": "ICAIF",
+      "slug": "icaif-2026",
+      "editionYear": 2026,
+      "description": "ACM conference on the application of AI techniques to real-world financial problems, including trading, risk, fraud detection, and AI governance in finance.",
+      "seriesId": "icaif",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["ai"],
+      "city": "Milan",
+      "country": "Italy",
+      "countryCode": "IT",
+      "continent": "Europe",
+      "geographicCategory": "Europe",
+      "venueName": "Bocconi University",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "icaif-2026-full-paper",
+          "type": "full-paper",
+          "label": "Paper submission deadline",
+          "startsAt": "2026-08-02T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://icaif2026.org/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page states the date (\"August 2, 2026\") but not an exact time or timezone; notification and camera-ready dates not yet published as of this scan."
+        },
+        {
+          "id": "icaif-2026-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2026-11-14T09:00:00",
+          "timezone": "Europe/Rome",
+          "verificationStatus": "official",
+          "sourceUrl": "https://icaif2026.org/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "icaif-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2026-11-17T18:00:00",
+          "timezone": "Europe/Rome",
+          "verificationStatus": "official",
+          "sourceUrl": "https://icaif2026.org/",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://icaif2026.org/",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}

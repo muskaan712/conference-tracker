@@ -1,0 +1,68 @@
+{
+  "seriesId": "esann",
+  "editions": [
+    {
+      "name": "European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning",
+      "acronym": "ESANN",
+      "slug": "esann-2026",
+      "editionYear": 2026,
+      "description": "European symposium on artificial neural networks, computational intelligence, and machine learning, held annually in Bruges.",
+      "seriesId": "esann",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["ml", "ai"],
+      "city": "Bruges",
+      "country": "Belgium",
+      "countryCode": "BE",
+      "continent": "Europe",
+      "geographicCategory": "Hybrid",
+      "venueName": "Crowne Plaza Brugge",
+      "isOnline": false,
+      "isHybrid": true,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "esann-2026-full-paper",
+          "type": "full-paper",
+          "label": "Paper submission deadline (extended)",
+          "startsAt": "2025-11-26T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://www.esann.org/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page labels this the \"extended deadline\" but does not state an exact time/timezone."
+        },
+        {
+          "id": "esann-2026-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2026-04-22T09:00:00",
+          "timezone": "Europe/Brussels",
+          "verificationStatus": "official",
+          "sourceUrl": "https://www.esann.org/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "esann-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2026-04-24T18:00:00",
+          "timezone": "Europe/Brussels",
+          "verificationStatus": "official",
+          "sourceUrl": "https://www.esann.org/",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://www.esann.org/",
+      "notes": "34th edition. No ESANN 2027 edition had been announced as of this scan.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}
