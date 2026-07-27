@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  classifyDeadlineLabel,
   classifyLink,
   detectAoE,
   extractLinks,
@@ -13,6 +14,7 @@ import {
   parseDateText,
   parseDefinitionLists,
   parseFirstTable,
+  parseStructuredLists,
   parseTimezoneMention,
   stripTags,
 } from "../../scripts/shared/parse-helpers";
@@ -137,6 +139,44 @@ describe("parseDefinitionLists / parseFirstTable", () => {
 
   it("returns an empty array when there is no table", () => {
     expect(parseFirstTable("<p>no table here</p>")).toEqual([]);
+  });
+});
+
+describe("parseStructuredLists", () => {
+  it("parses <li>label: date</li> pairs from a <ul>", () => {
+    const html =
+      "<ul><li>Abstract deadline: 1 March 2027</li><li>Notification: 1 April 2027</li></ul>";
+    expect(parseStructuredLists(html)).toEqual([
+      { term: "Abstract deadline", definition: "1 March 2027" },
+      { term: "Notification", definition: "1 April 2027" },
+    ]);
+  });
+
+  it("works with <ol> as well as <ul>", () => {
+    const html = "<ol><li>Camera ready: 1 May 2027</li></ol>";
+    expect(parseStructuredLists(html)).toEqual([{ term: "Camera ready", definition: "1 May 2027" }]);
+  });
+
+  it("ignores list items without a colon separator (ordinary prose bullets)", () => {
+    const html = "<ul><li>We welcome submissions on all topics</li></ul>";
+    expect(parseStructuredLists(html)).toEqual([]);
+  });
+
+  it("returns an empty array when there is no list", () => {
+    expect(parseStructuredLists("<p>no list here</p>")).toEqual([]);
+  });
+});
+
+describe("classifyDeadlineLabel", () => {
+  it("classifies common important-dates labels", () => {
+    expect(classifyDeadlineLabel("Abstract Submission Deadline")).toBe("abstract");
+    expect(classifyDeadlineLabel("Paper Submission Deadline")).toBe("full-paper");
+    expect(classifyDeadlineLabel("Camera-Ready Deadline")).toBe("camera-ready");
+    expect(classifyDeadlineLabel("Notification of Acceptance")).toBe("notification");
+  });
+
+  it("returns undefined for a label with no known keyword match", () => {
+    expect(classifyDeadlineLabel("Welcome Reception")).toBeUndefined();
   });
 });
 
