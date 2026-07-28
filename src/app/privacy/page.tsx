@@ -77,11 +77,14 @@ export default function PrivacyPage() {
             immediately, while keeping your sign-in itself active.
           </li>
           <li>
-            <strong>Delete account:</strong> Deletes the same Firestore data and then deletes the
-            Firebase Authentication account. This is a client-side operation that removes every
-            collection this app is known to write (papers, saved plans, favourites, preferences) —
-            it is not a server-side audited guarantee that no data remains anywhere in Firebase&apos;s
-            infrastructure (e.g. backups or logs Google itself retains).
+            <strong>Delete account:</strong>{" "}
+            <span>
+              Deletes the same Firestore data and then deletes the Firebase Authentication account.
+              This is a client-side operation that removes every collection this app is known to
+              write (papers, saved plans, favourites, preferences) — it is not a server-side audited
+              guarantee that no data remains anywhere in Firebase&apos;s infrastructure (e.g. backups
+              or logs Google itself retains).
+            </span>
           </li>
         </ul>
       </section>
