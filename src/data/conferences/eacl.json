@@ -25,7 +25,7 @@
           "id": "eacl-2027-arr-submission",
           "type": "arr-submission",
           "label": "ARR submission deadline (long & short papers)",
-          "startsAt": "2026-08-03T00:00:00",
+          "startsAt": "2026-08-03T23:59:00",
           "timezone": "Etc/GMT+12",
           "isAoE": true,
           "verificationStatus": "official",

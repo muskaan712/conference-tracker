@@ -70,8 +70,8 @@ function hasConfirmedDate(edition: ConferenceEdition): boolean {
 function hasDeadlineWithinDays(edition: ConferenceEdition, days: number, now: Date): boolean {
   return edition.dates.some((d) => {
     if (d.verificationStatus === "previous-cycle") return false;
-    const { daysRemaining } = relativeTimeTo(resolveDateInstant(d), now);
-    return daysRemaining >= 0 && daysRemaining <= days;
+    const { isPassed, hoursRemaining } = relativeTimeTo(resolveDateInstant(d), now);
+    return !isPassed && hoursRemaining <= days * 24;
   });
 }
 

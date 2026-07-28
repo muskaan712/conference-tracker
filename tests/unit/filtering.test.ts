@@ -78,6 +78,17 @@ describe("matchesFilters", () => {
     expect(matchesFilters(europeA, { deadlineWithinDays: 7 }, NOW)).toBe(true);
     expect(matchesFilters(outsideB, { deadlineWithinDays: 7 }, NOW)).toBe(false);
   });
+
+  it("excludes a deadline that already passed earlier the same UTC calendar day (exact instant, not calendar day)", () => {
+    // now = 2026-06-15T00:00:00Z; a deadline six hours earlier is on the same
+    // UTC calendar day but has already passed — it must never count as "within
+    // N days" just because the calendar-day difference happens to be zero.
+    const passedEarlierToday = makeEdition({
+      slug: "passed-earlier-today",
+      dates: [makeDate("full-paper", "2026-06-14T18:00:00.000Z")],
+    });
+    expect(matchesFilters(passedEarlierToday, { deadlineWithinDays: 7 }, NOW)).toBe(false);
+  });
 });
 
 describe("applyFilters", () => {

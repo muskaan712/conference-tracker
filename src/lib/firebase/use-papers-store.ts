@@ -21,10 +21,18 @@ const STORAGE_KEY = "ai-conference-tracker.my-papers.v1";
 
 export type PapersStorageMode = "guest" | "cloud";
 
+/**
+ * Restrained status for the small sync indicator in PersonalPaperBoard —
+ * "saved-locally" for guest mode, otherwise reflecting the most recent
+ * Firestore round-trip.
+ */
+export type SyncStatus = "saved-locally" | "syncing" | "synced" | "error";
+
 export interface PersonalPapersStore {
   papers: PersonalPaper[];
   hydrated: boolean;
   mode: PapersStorageMode;
+  syncStatus: SyncStatus;
   savePaper: (paper: PersonalPaper) => Promise<void>;
   deletePaper: (id: string) => Promise<void>;
   replaceAll: (papers: PersonalPaper[]) => Promise<void>;
@@ -56,6 +64,7 @@ export function usePersonalPapersStore(): PersonalPapersStore {
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const [pendingMigration, setPendingMigration] = useState<MigrationPreview | null>(null);
   const [migrationResolved, setMigrationResolved] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("saved-locally");
 
   const signedIn = firebaseEnabled && !initializing && Boolean(user);
   const identityKey = signedIn && user ? user.uid : null;
@@ -72,6 +81,7 @@ export function usePersonalPapersStore(): PersonalPapersStore {
     setCloudLoaded(false);
     setMigrationResolved(false);
     setPendingMigration(null);
+    setSyncStatus(identityKey ? "syncing" : "saved-locally");
   }
 
   // Fetch cloud papers once per sign-in. A plain data-fetch effect calling
@@ -80,15 +90,25 @@ export function usePersonalPapersStore(): PersonalPapersStore {
   useEffect(() => {
     if (!identityKey) return;
     let cancelled = false;
-    listPapers(identityKey).then((papers) => {
-      if (cancelled) return;
-      setCloudPapers(papers);
-      setCloudLoaded(true);
-      const preview = previewMigration(localPapers, papers);
-      if (preview.localOnlyCount > 0 && !migrationResolved) {
-        setPendingMigration(preview);
-      }
-    });
+    // syncStatus is already set to "syncing" synchronously above, in the
+    // trackedIdentity render-time adjustment — not here, to avoid the
+    // set-state-in-effect anti-pattern.
+    listPapers(identityKey)
+      .then((papers) => {
+        if (cancelled) return;
+        setCloudPapers(papers);
+        setCloudLoaded(true);
+        setSyncStatus("synced");
+        const preview = previewMigration(localPapers, papers);
+        if (preview.localOnlyCount > 0 && !migrationResolved) {
+          setPendingMigration(preview);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCloudLoaded(true);
+        setSyncStatus("error");
+      });
     return () => {
       cancelled = true;
     };
@@ -105,9 +125,16 @@ export function usePersonalPapersStore(): PersonalPapersStore {
   const savePaper = useCallback(
     async (paper: PersonalPaper) => {
       if (mode === "cloud" && user) {
-        await savePaperToCloud(user.uid, paper);
-        const next = await listPapers(user.uid);
-        setCloudPapers(next);
+        setSyncStatus("syncing");
+        try {
+          await savePaperToCloud(user.uid, paper);
+          const next = await listPapers(user.uid);
+          setCloudPapers(next);
+          setSyncStatus("synced");
+        } catch (error) {
+          console.error("[papers] Failed to save paper to Firestore:", error);
+          setSyncStatus("error");
+        }
         return;
       }
       setLocalPapers((prev) => {
@@ -121,9 +148,16 @@ export function usePersonalPapersStore(): PersonalPapersStore {
   const deletePaper = useCallback(
     async (id: string) => {
       if (mode === "cloud" && user) {
-        await deletePaperFromCloud(user.uid, id);
-        const next = await listPapers(user.uid);
-        setCloudPapers(next);
+        setSyncStatus("syncing");
+        try {
+          await deletePaperFromCloud(user.uid, id);
+          const next = await listPapers(user.uid);
+          setCloudPapers(next);
+          setSyncStatus("synced");
+        } catch (error) {
+          console.error("[papers] Failed to delete paper from Firestore:", error);
+          setSyncStatus("error");
+        }
         return;
       }
       setLocalPapers((prev) => prev.filter((p) => p.id !== id));
@@ -134,9 +168,16 @@ export function usePersonalPapersStore(): PersonalPapersStore {
   const replaceAll = useCallback(
     async (next: PersonalPaper[]) => {
       if (mode === "cloud" && user) {
-        await Promise.all(next.map((p) => savePaperToCloud(user.uid, p)));
-        const refreshed = await listPapers(user.uid);
-        setCloudPapers(refreshed);
+        setSyncStatus("syncing");
+        try {
+          await Promise.all(next.map((p) => savePaperToCloud(user.uid, p)));
+          const refreshed = await listPapers(user.uid);
+          setCloudPapers(refreshed);
+          setSyncStatus("synced");
+        } catch (error) {
+          console.error("[papers] Failed to sync papers to Firestore:", error);
+          setSyncStatus("error");
+        }
         return;
       }
       setLocalPapers(next);
@@ -163,6 +204,7 @@ export function usePersonalPapersStore(): PersonalPapersStore {
     papers,
     hydrated,
     mode,
+    syncStatus,
     savePaper,
     deletePaper,
     replaceAll,

@@ -18,6 +18,9 @@ export function SiteFooter() {
             <Link href="/about" className="hover:text-accent">
               About
             </Link>
+            <Link href="/privacy" className="hover:text-accent">
+              Privacy &amp; account data
+            </Link>
             {siteConfig.personalWebsiteUrl && (
               <a
                 href={siteConfig.personalWebsiteUrl}
