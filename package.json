@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:emulator": "firebase emulators:exec --only firestore,auth --project demo-conference-tracker \"playwright test --config=playwright.emulator.config.ts\"",
     "test:rules": "firebase emulators:exec --only firestore --project demo-conference-tracker \"vitest run tests/firestore/rules.test.ts\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

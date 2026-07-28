@@ -21,7 +21,7 @@ const SYNC_STATUS_TEXT: Record<SyncStatus, string> = {
   "saved-locally": "Guest records are stored only in this browser.",
   syncing: "Syncing…",
   synced: "Synced to your account — readable only by you, on any device you sign in on.",
-  error: "Sync failed — your latest change is safe locally but hasn't reached the cloud yet.",
+  error: "Sync failed — this change was not saved to the cloud. Please retry.",
 };
 
 const COLOR_CLASSES: Record<PersonalPaper["colorLabel"], string> = {
@@ -239,7 +239,11 @@ export function PersonalPaperBoard() {
       {papers.length === 0 ? (
         <EmptyState
           title="No papers yet"
-          description="Add a paper to start tracking its stage, target conferences, and tasks — everything stays in this browser only."
+          description={
+            mode === "cloud"
+              ? "Add a paper to start tracking its stage, target conferences, and tasks — synced to your account across devices."
+              : "Add a paper to start tracking its stage, target conferences, and tasks — everything stays in this browser only."
+          }
         />
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

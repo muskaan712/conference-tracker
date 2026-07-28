@@ -3,8 +3,13 @@
 import { collection, deleteDoc, doc, getDoc, getDocs, writeBatch } from "firebase/firestore";
 import { getFirebaseServices } from "./client";
 import type { PersonalPaper } from "../paper-schema";
+import { sanitizeForFirestore } from "./firestore-sanitize";
 import {
   CLOUD_SCHEMA_VERSION,
+  cloudFavouriteSchema,
+  cloudPaperSchema,
+  cloudPreferencesSchema,
+  cloudResubmissionPlanSchema,
   type CloudExportBundle,
   type CloudFavourite,
   type CloudPaper,
@@ -57,9 +62,8 @@ export async function listPapers(uid: string): Promise<CloudPaper[]> {
 export async function savePaperToCloud(uid: string, paper: PersonalPaper): Promise<void> {
   const db = requireDb();
   const record: CloudPaper = { ...paper, ownerUid: uid, schemaVersion: CLOUD_SCHEMA_VERSION };
-  const batch = writeBatch(db);
-  batch.set(doc(db, "users", uid, "papers", paper.id), record);
-  await batch.commit();
+  const validated = cloudPaperSchema.parse(sanitizeForFirestore(record));
+  await writeBatchSet(db, ["users", uid, "papers", paper.id], validated);
   sessionCache.delete(cacheKey(uid, "papers"));
 }
 
@@ -86,7 +90,8 @@ export async function savePlanToCloud(uid: string, plan: SavedResubmissionPlan):
     ownerUid: uid,
     schemaVersion: CLOUD_SCHEMA_VERSION,
   };
-  await writeBatchSet(db, ["users", uid, "resubmissionPlans", plan.id], record);
+  const validated = cloudResubmissionPlanSchema.parse(sanitizeForFirestore(record));
+  await writeBatchSet(db, ["users", uid, "resubmissionPlans", plan.id], validated);
   sessionCache.delete(cacheKey(uid, "resubmissionPlans"));
 }
 
@@ -113,7 +118,8 @@ export async function saveFavouriteToCloud(uid: string, favourite: Favourite): P
     ownerUid: uid,
     schemaVersion: CLOUD_SCHEMA_VERSION,
   };
-  await writeBatchSet(db, ["users", uid, "favourites", favourite.id], record);
+  const validated = cloudFavouriteSchema.parse(sanitizeForFirestore(record));
+  await writeBatchSet(db, ["users", uid, "favourites", favourite.id], validated);
   sessionCache.delete(cacheKey(uid, "favourites"));
 }
 
@@ -134,7 +140,8 @@ export async function getPlannerPreferences(uid: string): Promise<PlannerPrefere
 export async function setPlannerPreferences(uid: string, prefs: PlannerPreferences): Promise<void> {
   const db = requireDb();
   const record: CloudPreferences = { ...prefs, ownerUid: uid, schemaVersion: CLOUD_SCHEMA_VERSION };
-  await writeBatchSet(db, ["users", uid, "preferences", "main"], record);
+  const validated = cloudPreferencesSchema.parse(sanitizeForFirestore(record));
+  await writeBatchSet(db, ["users", uid, "preferences", "main"], validated);
 }
 
 /**
@@ -179,12 +186,18 @@ export async function exportAllUserData(uid: string): Promise<CloudExportBundle>
   };
 }
 
+/**
+ * Shared write path for every Firestore `set()` in this module. Sanitizes
+ * defensively (on top of whatever the caller already sanitized/validated)
+ * so no future call site can reintroduce the `undefined`-field bug just by
+ * forgetting the step — see firestore-sanitize.ts.
+ */
 async function writeBatchSet(
   db: ReturnType<typeof requireDb>,
   pathSegments: string[],
   data: Record<string, unknown>,
 ): Promise<void> {
   const batch = writeBatch(db);
-  batch.set(doc(db, pathSegments[0], ...pathSegments.slice(1)), data);
+  batch.set(doc(db, pathSegments[0], ...pathSegments.slice(1)), sanitizeForFirestore(data));
   await batch.commit();
 }
