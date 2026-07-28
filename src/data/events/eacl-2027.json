@@ -1,0 +1,74 @@
+{
+  "parentConferenceEditionSlug": "eacl-2027",
+  "events": [
+    {
+      "id": "eacl-2027-industry-track",
+      "slug": "eacl-2027-industry-track",
+      "name": "EACL 2027 Industry Track",
+      "acronym": "EACL-27 Industry",
+      "type": "industry-track",
+      "parentConferenceSeriesId": "eacl",
+      "parentConferenceEditionSlug": "eacl-2027",
+      "editionYear": 2027,
+      "lifecycleStatus": "cfp-open",
+      "description": "Industry-focused submission track co-located with the EACL 2027 main conference; no anonymity-period requirement, submissions handled via OpenReview.",
+      "researchAreas": ["nlp"],
+      "keywords": [],
+      "officialWebsiteUrl": "https://2027.eacl.org/calls/industry/",
+      "callForPapersUrl": "https://2027.eacl.org/calls/industry/",
+      "dates": [
+        {
+          "id": "eacl-2027-industry-submission",
+          "type": "industry-track",
+          "label": "Paper submission deadline",
+          "startsAt": "2026-09-11T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://2027.eacl.org/calls/industry/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "eacl-2027-industry-notification",
+          "type": "notification",
+          "label": "Acceptance notification",
+          "startsAt": "2026-12-18T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://2027.eacl.org/calls/industry/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "eacl-2027-industry-camera-ready",
+          "type": "camera-ready",
+          "label": "Camera-ready submission",
+          "startsAt": "2027-01-06T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://2027.eacl.org/calls/industry/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "eacl-2027-industry-event",
+          "type": "event-start",
+          "label": "Main conference & Industry Track dates begin",
+          "startsAt": "2027-03-09T09:00:00",
+          "timezone": "Europe/Athens",
+          "verificationStatus": "official",
+          "sourceUrl": "https://2027.eacl.org/calls/industry/",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "paperTypes": ["industry-paper"],
+      "tracks": [],
+      "ranking": { "tier": "Unclassified" },
+      "verificationStatus": "official",
+      "sourceUrls": ["https://2027.eacl.org/calls/industry/"],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}
