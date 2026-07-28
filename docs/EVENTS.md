@@ -127,9 +127,12 @@ root [README.md](../README.md) for the full list and their regression tests.
 
 ## Starter data
 
-No associated events are seeded in this repository yet. Populating even a
-"small representative set" honestly requires visiting each event's current
-official page and confirming its name, type, and status — that verification
-pass was intentionally **not** performed in this change, to avoid inventing
-plausible-sounding workshop names or dates. See `MANUAL_VERIFICATION.md` for
-this as a tracked gap.
+9 associated events are seeded across 3 parent editions
+(`src/data/events/aaai-2027.json`, `emnlp-2026.json`, `eacl-2027.json`) —
+each verified against either its own official CFP page or, where that
+wasn't independently checked, the parent conference's own official
+accepted-events list (marked `verificationStatus: "verified"`, not
+`"official"`, in that case, with `dates: []` left empty rather than
+guessed). See `MANUAL_VERIFICATION.md` for the full per-event breakdown,
+including which event types (shared-task, tutorial, competition, demo
+track) still have no seeded example and why.

@@ -1,0 +1,101 @@
+{
+  "seriesId": "wmt",
+  "editions": [
+    {
+      "name": "Conference on Machine Translation",
+      "acronym": "WMT",
+      "slug": "wmt-2026",
+      "editionYear": 2026,
+      "description": "Annual conference and shared-task venue for machine translation research, co-located with EMNLP and participating in ACL Rolling Review.",
+      "seriesId": "wmt",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["nlp"],
+      "city": "Budapest",
+      "country": "Hungary",
+      "countryCode": "HU",
+      "continent": "Europe",
+      "geographicCategory": "Hybrid",
+      "isOnline": false,
+      "isHybrid": true,
+      "locationVerificationStatus": "official",
+      "dates": [
+        {
+          "id": "wmt-2026-full-paper",
+          "type": "full-paper",
+          "label": "Paper submission deadline",
+          "startsAt": "2026-08-07T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "wmt-2026-arr-commitment",
+          "type": "arr-commitment",
+          "label": "ARR commitment deadline",
+          "startsAt": "2026-08-28T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "wmt-2026-notification",
+          "type": "notification",
+          "label": "Paper notification",
+          "startsAt": "2026-09-02T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "wmt-2026-camera-ready",
+          "type": "camera-ready",
+          "label": "Camera-ready version due",
+          "startsAt": "2026-09-11T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "wmt-2026-start",
+          "type": "conference-start",
+          "label": "Conference begins",
+          "startsAt": "2026-10-28T09:00:00",
+          "timezone": "Europe/Budapest",
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "wmt-2026-end",
+          "type": "conference-end",
+          "label": "Conference ends",
+          "startsAt": "2026-10-29T18:00:00",
+          "timezone": "Europe/Budapest",
+          "verificationStatus": "official",
+          "sourceUrl": "https://www2.statmt.org/wmt26/",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "tracks": ["Research Papers", "System/Shared Task Papers"],
+      "paperTypes": ["long-paper", "short-paper"],
+      "submissionSystem": "SoftConf / ACL Rolling Review",
+      "officialWebsiteUrl": "https://www2.statmt.org/wmt26/",
+      "notes": "Co-located with EMNLP 2026 in Budapest, Hungary.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}

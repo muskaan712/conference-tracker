@@ -5,6 +5,7 @@
  * function here is pure and side-effect-free so it can be unit tested
  * against fixture strings without any network access.
  */
+import type { DeadlineType } from "../../src/lib/schema";
 
 export function stripTags(html: string): string {
   return html
@@ -150,40 +151,56 @@ const MONTHS = [
   "december",
 ];
 
+/** Maps a 3-letter month abbreviation ("Sep") to its full name ("september"); "Sept" is also accepted. */
+const MONTH_ABBREVIATIONS: Record<string, string> = Object.fromEntries(
+  MONTHS.map((month) => [month.slice(0, 3), month]),
+);
+MONTH_ABBREVIATIONS.sept = "september";
+
+/** Case-insensitive alternation matching a full or abbreviated month name (e.g. "September" or "Sep"). */
+const MONTH_NAME_PATTERN =
+  "(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec)";
+
+function monthIndexFromName(name: string): number {
+  const lower = name.toLowerCase();
+  const full = MONTH_ABBREVIATIONS[lower] ?? lower;
+  return MONTHS.indexOf(full) + 1;
+}
+
 /**
  * Best-effort parse of a "Month Day, Year" / "Day Month Year" style date
- * mention into an ISO `YYYY-MM-DD` string. Returns undefined (never a guess)
- * when the text doesn't confidently match a known pattern — callers must
- * treat an undefined result as "needs a human to read the source page".
+ * mention into an ISO `YYYY-MM-DD` string. Accepts both full ("September")
+ * and abbreviated ("Sep") month names — the latter is common on sites like
+ * OpenReview ("Sep 25 2025 11:59AM UTC-0"). Returns undefined (never a
+ * guess) when the text doesn't confidently match a known pattern — callers
+ * must treat an undefined result as "needs a human to read the source page".
  */
 export function parseDateText(text: string, fallbackYear?: number): string | undefined {
   const cleaned = text.replace(/(\d+)(st|nd|rd|th)/gi, "$1").trim();
 
   const monthDayYear = cleaned.match(
-    /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})\b/i,
+    new RegExp(`\\b${MONTH_NAME_PATTERN}\\s+(\\d{1,2}),?\\s+(\\d{4})\\b`, "i"),
   );
   if (monthDayYear) {
-    const month = MONTHS.indexOf(monthDayYear[1].toLowerCase()) + 1;
+    const month = monthIndexFromName(monthDayYear[1]);
     const day = Number(monthDayYear[2]);
     const year = Number(monthDayYear[3]);
     return isoDate(year, month, day);
   }
 
   const dayMonthYear = cleaned.match(
-    /\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})\b/i,
+    new RegExp(`\\b(\\d{1,2})\\s+${MONTH_NAME_PATTERN}\\s+(\\d{4})\\b`, "i"),
   );
   if (dayMonthYear) {
     const day = Number(dayMonthYear[1]);
-    const month = MONTHS.indexOf(dayMonthYear[2].toLowerCase()) + 1;
+    const month = monthIndexFromName(dayMonthYear[2]);
     const year = Number(dayMonthYear[3]);
     return isoDate(year, month, day);
   }
 
-  const monthDayNoYear = cleaned.match(
-    /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})\b/i,
-  );
+  const monthDayNoYear = cleaned.match(new RegExp(`\\b${MONTH_NAME_PATTERN}\\s+(\\d{1,2})\\b`, "i"));
   if (monthDayNoYear && fallbackYear) {
-    const month = MONTHS.indexOf(monthDayNoYear[1].toLowerCase()) + 1;
+    const month = monthIndexFromName(monthDayNoYear[1]);
     const day = Number(monthDayNoYear[2]);
     return isoDate(fallbackYear, month, day);
   }
@@ -215,6 +232,31 @@ export function parseDefinitionLists(html: string): DefinitionListEntry[] {
     const defs = [...body.matchAll(/<dd[^>]*>([\s\S]*?)<\/dd>/gi)].map((m) => stripTags(m[1]));
     for (let i = 0; i < Math.min(terms.length, defs.length); i++) {
       entries.push({ term: terms[i], definition: defs[i] });
+    }
+  }
+  return entries;
+}
+
+/**
+ * Parses "label: date" pairs out of a plain bulleted list — a common
+ * alternative to a `<table>`/`<dl>` for an important-dates section, e.g.
+ * `<ul><li>Abstract deadline: 1 March 2027</li>...</ul>`. Only `<li>` items
+ * containing a colon separator are treated as pairs; a bullet list that
+ * isn't structured as label:value (e.g. ordinary prose bullets) correctly
+ * yields nothing rather than a false match.
+ */
+export function parseStructuredLists(html: string): DefinitionListEntry[] {
+  const entries: DefinitionListEntry[] = [];
+  for (const listMatch of html.matchAll(/<(ul|ol)[^>]*>([\s\S]*?)<\/\1>/gi)) {
+    const body = listMatch[2];
+    for (const itemMatch of body.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)) {
+      const text = stripTags(itemMatch[1]);
+      const separatorIndex = text.indexOf(":");
+      if (separatorIndex <= 0 || separatorIndex === text.length - 1) continue;
+      entries.push({
+        term: text.slice(0, separatorIndex).trim(),
+        definition: text.slice(separatorIndex + 1).trim(),
+      });
     }
   }
   return entries;
@@ -269,4 +311,28 @@ export function looksLikeCfpSection(text: string): boolean {
 /** True when the section text plausibly describes an important-dates listing. */
 export function looksLikeImportantDatesSection(text: string): boolean {
   return /deadline|notification|camera[\s-]?ready|abstract/i.test(text);
+}
+
+const DEADLINE_LABEL_KEYWORDS: Array<[DeadlineType, RegExp]> = [
+  ["abstract", /abstract/i],
+  ["arr-commitment", /arr\s*commitment|commitment\s*deadline/i],
+  ["arr-submission", /arr\s*submission/i],
+  ["workshop-proposal", /workshop\s*proposal/i],
+  ["workshop-paper", /workshop\s*(paper|submission)/i],
+  ["camera-ready", /camera[\s-]?ready/i],
+  ["early-registration", /early\s*(bird\s*)?registration/i],
+  ["author-response", /author\s*response/i],
+  ["rebuttal", /rebuttal/i],
+  ["notification", /notification|decision/i],
+  ["conference-start", /conference\s*(begins|starts)|start\s*date/i],
+  ["conference-end", /conference\s*ends|end\s*date/i],
+  ["full-paper", /(full\s*)?paper\s*(submission\s*)?deadline|submission\s*deadline/i],
+];
+
+/** Best-effort classification of a table/definition-list row label into a known DeadlineType. Never guesses beyond keyword matches. */
+export function classifyDeadlineLabel(label: string): DeadlineType | undefined {
+  for (const [type, pattern] of DEADLINE_LABEL_KEYWORDS) {
+    if (pattern.test(label)) return type;
+  }
+  return undefined;
 }

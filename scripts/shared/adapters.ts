@@ -1,58 +1,30 @@
-import type { DeadlineType, DiscoverySource } from "../../src/lib/schema";
-import type { FetchClient } from "./fetch-client";
+import type { DiscoverySource } from "../../src/lib/schema";
 import {
+  classifyDeadlineLabel,
   detectAoE,
   extractYearFromText,
   parseDateText,
   parseDefinitionLists,
   parseFirstTable,
+  parseStructuredLists,
   parseTimezoneMention,
 } from "./parse-helpers";
+export { classifyDeadlineLabel } from "./parse-helpers";
+import { aiDeadlinesAdapter } from "./ai-deadlines-adapter";
+import { openReviewVenueAdapter } from "./openreview-adapter";
+import {
+  confidenceForSource,
+  type DiscoveredDateCandidate,
+  type DiscoveredEditionCandidate,
+  type SourceAdapter,
+} from "./discovery-types";
 
-export interface DiscoveredDateCandidate {
-  type: DeadlineType;
-  label: string;
-  startsAt: string;
-  endsAt?: string;
-  timezone: string;
-  isAoE?: boolean;
-  sourceUrl: string;
-}
-
-export interface DiscoveredEditionCandidate {
-  seriesId: string;
-  /**
-   * Resolved per Part 3 "Edition matching": prefer a year explicit in the
-   * source itself, then the discovery-sources.json registry's configured
-   * `editionYear` for that source, then a year parsed out of the page's own
-   * dates. Adapters must populate this whenever possible — update-
-   * conferences.ts never falls back to "the newest on-disk edition".
-   */
-  editionYear?: number;
-  city?: string;
-  country?: string;
-  countryCode?: string;
-  venueName?: string;
-  officialWebsiteUrl?: string;
-  dates: DiscoveredDateCandidate[];
-  sourceId: string;
-  /** Reflects the discovery source's trustLevel; never auto-escalated to "official". */
-  confidence: "high" | "medium" | "low";
-}
-
-export interface SourceAdapter {
-  id: string;
-  description: string;
-  /** Whether this adapter knows how to handle the given source. */
-  supports(source: DiscoverySource): boolean;
-  run(source: DiscoverySource, client: FetchClient): Promise<DiscoveredEditionCandidate[]>;
-}
-
-function confidenceForSource(source: DiscoverySource): "high" | "medium" | "low" {
-  if (source.trustLevel === "official") return "high";
-  if (source.trustLevel === "secondary") return "medium";
-  return "low";
-}
+export type {
+  DiscoveredDateCandidate,
+  DiscoveredEditionCandidate,
+  SourceAdapter,
+} from "./discovery-types";
+export { confidenceForSource } from "./discovery-types";
 
 /**
  * Looks for schema.org `Event` JSON-LD on the source page — the structured,
@@ -146,43 +118,21 @@ export const manualReviewFallbackAdapter: SourceAdapter = {
   },
 };
 
-const DEADLINE_LABEL_KEYWORDS: Array<[DeadlineType, RegExp]> = [
-  ["abstract", /abstract/i],
-  ["arr-commitment", /arr\s*commitment|commitment\s*deadline/i],
-  ["arr-submission", /arr\s*submission/i],
-  ["workshop-proposal", /workshop\s*proposal/i],
-  ["workshop-paper", /workshop\s*(paper|submission)/i],
-  ["camera-ready", /camera[\s-]?ready/i],
-  ["early-registration", /early\s*(bird\s*)?registration/i],
-  ["author-response", /author\s*response/i],
-  ["rebuttal", /rebuttal/i],
-  ["notification", /notification|decision/i],
-  ["conference-start", /conference\s*(begins|starts)|start\s*date/i],
-  ["conference-end", /conference\s*ends|end\s*date/i],
-  ["full-paper", /(full\s*)?paper\s*(submission\s*)?deadline|submission\s*deadline/i],
-];
-
-/** Best-effort classification of a table/definition-list row label into a known DeadlineType. Never guesses beyond keyword matches. */
-export function classifyDeadlineLabel(label: string): DeadlineType | undefined {
-  for (const [type, pattern] of DEADLINE_LABEL_KEYWORDS) {
-    if (pattern.test(label)) return type;
-  }
-  return undefined;
-}
 
 /**
  * Generic "important dates" page adapter: works on any page exposing an
- * HTML `<table>` or `<dl>` of label/date pairs (a very common layout for
- * academic CFP pages), without hardcoding one specific conference's markup.
- * Tested against synthetic fixtures modelled on that common layout — NOT
- * verified against any specific live conference site in this codebase.
+ * HTML `<table>`, `<dl>`, or a plain "label: date" bulleted `<ul>`/`<ol>` of
+ * label/date pairs — the three most common layouts for academic CFP pages —
+ * without hardcoding one specific conference's markup. Tested against
+ * synthetic fixtures modelled on those common layouts — NOT verified
+ * against any specific live conference site in this codebase.
  * Family-specific adapters (parsing a particular site's exact structure)
  * can be added alongside this one; none are claimed beyond what's here.
  */
 export const importantDatesTableAdapter: SourceAdapter = {
   id: "important-dates-table",
   description:
-    "Parses a generic HTML table or definition list of label/date pairs on an important-dates page.",
+    "Parses a generic HTML table, definition list, or bulleted list of label/date pairs on an important-dates page.",
   supports(source) {
     return source.parser === "important-dates-table";
   },
@@ -192,10 +142,14 @@ export const importantDatesTableAdapter: SourceAdapter = {
 
     const fallbackYear = source.editionYear ?? extractYearFromText(page.body);
     const rows = parseFirstTable(page.body);
+    const definitionEntries = parseDefinitionLists(page.body);
+    const structuredListEntries = parseStructuredLists(page.body);
     const pairs: Array<[string, string]> =
       rows.length > 0
         ? rows.filter((r) => r.length >= 2).map((r) => [r[0], r[1]])
-        : parseDefinitionLists(page.body).map((e) => [e.term, e.definition]);
+        : definitionEntries.length > 0
+          ? definitionEntries.map((e) => [e.term, e.definition])
+          : structuredListEntries.map((e) => [e.term, e.definition]);
 
     const dates: DiscoveredDateCandidate[] = [];
     for (const [label, dateText] of pairs) {
@@ -229,7 +183,12 @@ export const importantDatesTableAdapter: SourceAdapter = {
   },
 };
 
-export const ADAPTERS: SourceAdapter[] = [jsonLdEventAdapter, importantDatesTableAdapter];
+export const ADAPTERS: SourceAdapter[] = [
+  jsonLdEventAdapter,
+  importantDatesTableAdapter,
+  aiDeadlinesAdapter,
+  openReviewVenueAdapter,
+];
 
 export function adapterFor(source: DiscoverySource): SourceAdapter {
   return ADAPTERS.find((adapter) => adapter.supports(source)) ?? manualReviewFallbackAdapter;

@@ -1,0 +1,30 @@
+{
+  "seriesId": "sdm",
+  "editions": [
+    {
+      "name": "SIAM International Conference on Data Mining",
+      "acronym": "SDM",
+      "slug": "sdm-2026",
+      "editionYear": 2026,
+      "description": "SIAM conference on data mining research, methods, and applications.",
+      "seriesId": "sdm",
+      "ranking": {
+        "tier": "Unclassified"
+      },
+      "researchAreas": ["data-mining", "ml"],
+      "geographicCategory": "Location not announced",
+      "isOnline": false,
+      "isHybrid": false,
+      "locationVerificationStatus": "unverified",
+      "dates": [],
+      "tracks": ["Main Conference"],
+      "paperTypes": ["long-paper"],
+      "officialWebsiteUrl": "https://www.siam.org/conferences-events/siam-conferences/sdm26/",
+      "notes": "Third-party aggregators disagree on this edition's dates/location (one source suggested Salt Lake City, 19-20 November 2026, which is unusually late in the year and unusually short for SDM's typical spring schedule); the official siam.org page returned HTTP 403 during this session and could not be independently confirmed. Left intentionally blank rather than publishing an unverified/conflicting date as if confirmed — see MANUAL_VERIFICATION.md.",
+      "referenceDates": [],
+      "archiveHistory": [],
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}

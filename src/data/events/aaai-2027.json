@@ -1,0 +1,197 @@
+{
+  "parentConferenceEditionSlug": "aaai-2027",
+  "events": [
+    {
+      "id": "aaai-2027-eaai",
+      "slug": "aaai-2027-eaai",
+      "name": "Symposium on Educational Advances in Artificial Intelligence",
+      "acronym": "EAAI-27",
+      "type": "symposium",
+      "parentConferenceSeriesId": "aaai",
+      "parentConferenceEditionSlug": "aaai-2027",
+      "editionYear": 2027,
+      "lifecycleStatus": "cfp-open",
+      "description": "17th edition; invites AI educators and researchers to share advances in teaching and learning about AI, including K-12-focused work and model AI assignments.",
+      "researchAreas": ["ai", "human-centered-ai"],
+      "keywords": [],
+      "officialWebsiteUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+      "callForPapersUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+      "dates": [
+        {
+          "id": "aaai-2027-eaai-abstract",
+          "type": "abstract",
+          "label": "Abstract deadline",
+          "startsAt": "2026-09-01T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "aaai-2027-eaai-full-paper",
+          "type": "full-paper",
+          "label": "Paper deadline",
+          "startsAt": "2026-09-08T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "aaai-2027-eaai-notification",
+          "type": "notification",
+          "label": "Notification date",
+          "startsAt": "2026-11-17T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page did not restate AoE for this date."
+        },
+        {
+          "id": "aaai-2027-eaai-camera-ready",
+          "type": "camera-ready",
+          "label": "Camera-ready deadline",
+          "startsAt": "2026-12-14T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page did not restate AoE for this date."
+        },
+        {
+          "id": "aaai-2027-eaai-event-start",
+          "type": "event-start",
+          "label": "Symposium dates begin",
+          "startsAt": "2027-02-21T09:00:00",
+          "timezone": "America/Toronto",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/eaai-27-call/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Held alongside the AAAI-27 main conference in Montréal, 21-23 February 2027."
+        }
+      ],
+      "paperTypes": ["long-paper", "short-paper"],
+      "tracks": [],
+      "ranking": { "tier": "Unclassified" },
+      "verificationStatus": "official",
+      "sourceUrls": ["https://aaai.org/conference/aaai/aaai-27/eaai-27-call/"],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    },
+    {
+      "id": "aaai-2027-doctoral-consortium",
+      "slug": "aaai-2027-doctoral-consortium",
+      "name": "AAAI/SIGAI Doctoral Consortium",
+      "acronym": "AAAI-27 DC",
+      "type": "doctoral-consortium",
+      "parentConferenceSeriesId": "aaai",
+      "parentConferenceEditionSlug": "aaai-2027",
+      "editionYear": 2027,
+      "lifecycleStatus": "cfp-open",
+      "description": "32nd edition. Solicits applications on any AI topic/methodology: a two-page extended abstract covering research questions, related work, proposed research plan, and thesis-contribution timeline.",
+      "researchAreas": ["ai"],
+      "keywords": [],
+      "officialWebsiteUrl": "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/",
+      "callForPapersUrl": "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/",
+      "dates": [
+        {
+          "id": "aaai-2027-dc-submission",
+          "type": "doctoral-consortium-deadline",
+          "label": "Application package submission deadline",
+          "startsAt": "2026-10-13T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "aaai-2027-dc-notification",
+          "type": "notification",
+          "label": "Selection notification",
+          "startsAt": "2026-11-14T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/",
+          "verifiedAt": "2026-07-28"
+        },
+        {
+          "id": "aaai-2027-dc-camera-ready",
+          "type": "camera-ready",
+          "label": "Camera-ready thesis summary due",
+          "startsAt": "2026-12-05T23:59:00",
+          "timezone": "Etc/GMT+12",
+          "isAoE": true,
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/",
+          "verifiedAt": "2026-07-28"
+        }
+      ],
+      "paperTypes": [],
+      "tracks": [],
+      "ranking": { "tier": "Unclassified" },
+      "verificationStatus": "official",
+      "sourceUrls": [
+        "https://aaai.org/conference/aaai/aaai-27/thirty-second-aaai-sigai-doctoral-consortium-call-for-proposals/"
+      ],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    },
+    {
+      "id": "aaai-2027-student-abstract",
+      "slug": "aaai-2027-student-abstract",
+      "name": "Student Abstract and Poster Program",
+      "acronym": "AAAI-27 SA",
+      "type": "special-session",
+      "parentConferenceSeriesId": "aaai",
+      "parentConferenceEditionSlug": "aaai-2027",
+      "editionYear": 2027,
+      "lifecycleStatus": "cfp-open",
+      "description": "Dedicated poster/abstract track for students to present research; each student may submit at most one abstract as primary author.",
+      "researchAreas": ["ai"],
+      "keywords": [],
+      "officialWebsiteUrl": "https://aaai.org/conference/aaai/aaai-27/student-abstract-and-poster-program-call-for-proposals/",
+      "callForPapersUrl": "https://aaai.org/conference/aaai/aaai-27/student-abstract-and-poster-program-call-for-proposals/",
+      "dates": [
+        {
+          "id": "aaai-2027-sa-submission",
+          "type": "abstract",
+          "label": "Electronic submission of abstracts due",
+          "startsAt": "2026-09-28T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/student-abstract-and-poster-program-call-for-proposals/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page does not state an exact time or timezone."
+        },
+        {
+          "id": "aaai-2027-sa-notification",
+          "type": "notification",
+          "label": "Notification of acceptance or rejection",
+          "startsAt": "2026-11-13T23:59:00",
+          "timezone": "UTC",
+          "verificationStatus": "official",
+          "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/student-abstract-and-poster-program-call-for-proposals/",
+          "verifiedAt": "2026-07-28",
+          "notes": "Official page does not state an exact time or timezone."
+        }
+      ],
+      "paperTypes": ["position-paper"],
+      "tracks": [],
+      "ranking": { "tier": "Unclassified" },
+      "verificationStatus": "official",
+      "sourceUrls": [
+        "https://aaai.org/conference/aaai/aaai-27/student-abstract-and-poster-program-call-for-proposals/"
+      ],
+      "lastVerifiedAt": "2026-07-28",
+      "lastScannedAt": "2026-07-28",
+      "auditTrail": []
+    }
+  ]
+}

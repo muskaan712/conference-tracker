@@ -10,8 +10,9 @@
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
     "notes": "Also publishes a per-year Call for Papers page (e.g. /Conferences/2026/CallForPapers) with structured key dates.",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -24,8 +25,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -38,8 +40,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -52,8 +55,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -66,8 +70,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -80,8 +85,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -94,8 +100,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -108,8 +115,9 @@
     "trustLevel": "official",
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -123,8 +131,9 @@
     "scanFrequency": "weekly",
     "parser": "official-site-generic",
     "notes": "As of the last scan, no CVPR 2027 call for papers had been published yet.",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -137,8 +146,24 @@
     "scanFrequency": "monthly",
     "parser": "core-rankings-search",
     "notes": "Source of truth for CORE/ICORE conference tier rankings (A*, A, B, C). Never used to infer dates or locations.",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z",
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
+    "isDead": false
+  },
+  {
+    "id": "ai-deadlines-feed",
+    "name": "AI Deadlines community feed (paperswithcode/ai-deadlines)",
+    "url": "https://raw.githubusercontent.com/paperswithcode/ai-deadlines/gh-pages/_data/conferences.yml",
+    "type": "discovery-only",
+    "enabled": true,
+    "trustLevel": "discovery-only",
+    "scanFrequency": "weekly",
+    "parser": "ai-deadlines-yaml",
+    "notes": "MIT-licensed, community-maintained machine-readable YAML feed (github.com/paperswithcode/ai-deadlines) covering many conference series in one file. Matched to local series via scripts/shared/series-aliases.ts; only ever produces verificationStatus \"discovered\" candidates (see merge-safeguards.ts) — never sufficient on its own to mark a date official, and can never overwrite an existing official value.",
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
     "isDead": false
   },
   {
@@ -150,8 +175,9 @@
     "trustLevel": "discovery-only",
     "scanFrequency": "weekly",
     "notes": "Community-maintained deadline aggregator. Useful for surfacing candidate dates to investigate, but never sufficient on its own to mark a date 'official' or 'verified' — always cross-check against the conference's own site before upgrading verification status. Disabled by default; enable once a parser is reviewed.",
-    "isDead": false,
-    "lastCheckedAt": "2026-07-26T23:44:32.466Z",
-    "lastSuccessfulScan": "2026-07-26T23:44:32.466Z"
+    "lastSuccessfulScan": "2026-07-28T00:09:53.872Z",
+    "lastCheckedAt": "2026-07-28T00:09:53.872Z",
+    "failureCount": 0,
+    "isDead": false
   }
 ]
