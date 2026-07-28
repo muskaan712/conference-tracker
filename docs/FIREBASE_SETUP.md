@@ -135,6 +135,23 @@ it, run the tests, then tear it down automatically) — it is **not** part of
 the default `npm test` run, and does not require live production Firebase
 credentials.
 
+`tests/e2e-emulator/papers-sync.spec.ts` similarly proves a real sign-up +
+Firestore write round-trip (specifically: saving a paper with no
+`currentTarget`, and one with a `currentTarget` but no `slug`, both reach
+the "synced" state rather than a Firestore serialization error) against the
+Auth + Firestore emulators. Run it with:
+
+```bash
+npm run test:e2e:emulator
+```
+
+`src/lib/firebase/client.ts` only ever connects to the emulator when
+`NEXT_PUBLIC_FIREBASE_EMULATOR_HOST` is set (which `playwright.emulator.config.ts`
+sets for its own dev server only) — this variable must never be set in a
+real deployment. Like `test:rules`, this is **not** part of the default
+`npm run test:e2e` and requires the same local Java runtime for the
+emulator.
+
 ## 10. Export and delete user data
 
 Already implemented in the app itself (Account settings dialog):

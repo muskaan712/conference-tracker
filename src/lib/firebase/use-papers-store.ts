@@ -104,8 +104,9 @@ export function usePersonalPapersStore(): PersonalPapersStore {
           setPendingMigration(preview);
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        console.error("[papers] Failed to load papers from Firestore:", error);
         setCloudLoaded(true);
         setSyncStatus("error");
       });
