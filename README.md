@@ -264,7 +264,7 @@ where a session lookup found one, cited via `ranking.source` +
 `ranking.sourceUrl` + `ranking.verifiedAt`. Where no lookup was performed,
 the tier is left `Unclassified` — that is **not** a quality judgement, just
 an honest "not checked yet" marker. See `MANUAL_VERIFICATION.md` for which
-of the 25 seeded series currently have a verified tier.
+of the 37 seeded series currently have a verified tier.
 
 ## Europe / Outside Europe classification
 
@@ -468,10 +468,12 @@ required. Full step-by-step instructions: [`docs/DEPLOYMENT.md`](./docs/DEPLOYME
 
 ## Known limitations
 
-- **Sparse verified data.** Of 25 seeded series, 9 have session-verified
+- **Sparse verified data.** Of 37 seeded series, 21 have session-verified
   dates and 11 have a session-verified tier; the rest are structurally
   complete but empty by design (see `MANUAL_VERIFICATION.md`) rather than
-  filled with guesses.
+  filled with guesses. One series (SDM) has no dates at all after
+  aggregators disagreed with each other and the official site returned
+  HTTP 403 during verification — recording nothing was safer than a guess.
 - **The JSON-LD adapter finds little today.** Most conference sites don't
   publish schema.org `Event` markup; a real deployment will need more
   source-specific adapters over time (RSS/Atom where available, or careful,
@@ -485,20 +487,26 @@ required. Full step-by-step instructions: [`docs/DEPLOYMENT.md`](./docs/DEPLOYME
 - **`/updates` starts empty.** The seed data's `auditTrail` arrays are
   empty by design — there's no fabricated update history. It fills in once
   the first automated PR is reviewed and merged.
-- **No starter associated-event data.** `src/data/events/` is intentionally
-  empty — populating it honestly requires visiting each event's own current
-  official page, which wasn't done this pass specifically to avoid
-  inventing a plausible-sounding workshop name, deadline, or ranking. See
-  `docs/EVENTS.md`.
+- **Associated-event data is a small starter set, not comprehensive.**
+  `src/data/events/` now seeds 9 events across 3 parent editions (was
+  empty) — see `docs/EVENTS.md` and `MANUAL_VERIFICATION.md` for exactly
+  what's verified vs. confirmed-only-by-the-parent's-programme-page, and
+  which event types (shared-task, tutorial, competition, demo track) still
+  have no example.
 - **Event field-level discovery isn't implemented yet.** `update-events.ts`
   only _proposes new events_ (name, type, parent, link) from a programme
   page; it doesn't yet scan an individual event's own site for its dates,
   CFP, or proceedings status.
-- **Only two discovery adapters exist**: the generic JSON-LD adapter and a
-  generic HTML table/definition-list adapter. No per-conference-family
-  (ACL/NeurIPS/ICML/ICLR/AAAI/IJCAI/CVPR/ICCV/ECCV) adapter was written —
-  the reusable parsing helpers (`shared/parse-helpers.ts`) are the
-  foundation for adding them later, but none is claimed as done here.
+- **Four discovery adapters exist**: the generic JSON-LD adapter; a generic
+  HTML important-dates adapter supporting tables, definition lists, and
+  plain bulleted lists; a discovery-only adapter for the AI Deadlines
+  community YAML feed (`ai-deadlines-yaml`, matched to local series via
+  `shared/series-aliases.ts`); and an OpenReview venue-group metadata
+  adapter (`openreview-venue-group`). No per-conference-family
+  (ACL/NeurIPS/ICML/ICLR/AAAI/IJCAI/CVPR/ICCV/ECCV) HTML-scraping adapter
+  was written — the reusable parsing helpers (`shared/parse-helpers.ts`)
+  are the foundation for adding them later, but none is claimed as done
+  here.
 - **Firestore rules tests could not be executed in this environment** — the
   Firestore emulator requires a local Java runtime, which wasn't available
   when this change was made. `tests/firestore/rules.test.ts` is written and
@@ -523,9 +531,12 @@ around.
 
 ## Future improvements
 
-- Per-source adapters beyond generic JSON-LD (official RSS/Atom feeds where
-  conferences publish them; reviewed, source-specific HTML parsers where
-  they don't).
+- Per-conference-family adapters beyond the generic ones (official RSS/Atom
+  feeds where conferences publish them; reviewed, source-specific HTML
+  parsers where they don't).
+- A CCF Deadlines-style nested-YAML adapter alongside the existing flat-list
+  `ai-deadlines-yaml` one, and more `discovery-sources.json` entries using
+  the `openreview-venue-group` parser for other OpenReview-hosted venues.
 - A `core-rankings-search` adapter so ranking changes can also flow through
   the review pipeline instead of being entered by hand.
 - Live client-side countdown refresh instead of relying solely on ISR revalidation.
