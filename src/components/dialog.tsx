@@ -1,11 +1,27 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// Portals must not render during SSR/the first client render (there's no
+// document.body match to hydrate against), so — same pattern as
+// ThemeToggle — we read "are we mounted on the client" via
+// useSyncExternalStore rather than a setState-in-effect, which avoids an
+// extra cascading render.
+function subscribeNever() {
+  return () => {};
+}
+function getMountedSnapshot() {
+  return true;
+}
+function getServerMountedSnapshot() {
+  return false;
+}
 
 export interface DialogProps {
   /** Called when the dialog should close — Escape, backdrop click, or the close button. */
@@ -38,8 +54,15 @@ export function Dialog({
 }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const mounted = useSyncExternalStore(
+    subscribeNever,
+    getMountedSnapshot,
+    getServerMountedSnapshot,
+  );
 
   useEffect(() => {
+    if (!mounted) return;
+
     const triggerElement = document.activeElement;
     const previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -71,9 +94,11 @@ export function Dialog({
       document.body.style.overflow = previousBodyOverflow;
       if (triggerElement instanceof HTMLElement) triggerElement.focus();
     };
-  }, [onClose]);
+  }, [onClose, mounted]);
 
-  return (
+  if (!mounted || typeof document === "undefined" || !document.body) return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 overflow-y-auto bg-black/40"
       onClick={onClose}
@@ -109,6 +134,7 @@ export function Dialog({
           <div className="p-5 pt-4">{children}</div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
