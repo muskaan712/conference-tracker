@@ -27,7 +27,8 @@ const MESSAGES: Record<string, string> = {
     "This site's domain isn't authorised for sign-in yet. (Firebase console → Authentication → Settings → Authorized domains.)",
   "auth/operation-not-allowed":
     "Google sign-in isn't enabled for this project yet. (Firebase console → Authentication → Sign-in method.)",
-  "auth/popup-blocked": "Your browser blocked the sign-in popup. Allow popups for this site and try again.",
+  "auth/popup-blocked":
+    "Your browser blocked the sign-in popup. Allow popups for this site and try again.",
   "auth/popup-closed-by-user": "Sign-in window closed before finishing. Please try again.",
   "auth/cancelled-popup-request": "Another sign-in attempt is already in progress.",
   "auth/account-exists-with-different-credential":

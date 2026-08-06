@@ -70,7 +70,9 @@ npm run discover          # run discovery adapters, write reports/discovered-can
 npm run update-conferences # discover + merge candidates into src/data + write a Markdown report
 npm run discover-events    # scan workshop/tutorial programme pages for associated-event candidates
 npm run update-events      # merge new associated-event proposals into src/data/events
-npm run check-sources      # ping every discovery source, update health status in-place
+npm run check-sources      # ping every discovery source, write reports/source-health-*.md
+                           # and update health status in discovery-sources.json
+                           # (add -- --report-only to write only the report)
 npm run test:rules         # Firestore Security Rules tests (requires the local emulator + Java)
 ```
 
@@ -344,8 +346,12 @@ validate-conference-data.ts → Zod-validates conferences AND events; checks
                                ranking-without-source; exit 1 on failure
 generate-update-report.ts   → Markdown report builder (used as a library
                                by update-conferences.ts / update-events.ts)
-check-source-health.ts      → pings every source, records isDead / last-
-                               checked / last-successful-scan in place
+check-source-health.ts      → pings every source, always writes
+                               reports/source-health-<date>.md, and records
+                               isDead / last-checked / last-successful-scan
+                               in discovery-sources.json unless run with
+                               --report-only (which the weekly workflow
+                               uses — see "Which timestamp means what")
 
 shared/parse-helpers.ts      → dependency-free HTML/text helpers reused by
                                 every adapter: meta/title/link extraction,
@@ -383,6 +389,34 @@ combined PR** (never two, never a second workflow) — main is never written
 to directly. The PR body concatenates both Markdown reports; labels
 `automated-update`, `conference-data`, `needs-verification` are attached if
 they exist in the repo (see `MANUAL_VERIFICATION.md` — create them once).
+
+### Which timestamp means what
+
+Three different dates are easy to confuse. They are deliberately **not**
+interchangeable, and nothing writes one from another:
+
+| Concept                           | Where it lives                                                 | Written by                                                                        |
+| --------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Last successful scanner run       | GitHub Actions run metadata for `weekly-conference-update.yml` | GitHub, every time the workflow succeeds — scheduled or `workflow_dispatch`       |
+| Last conference/event data change | `edition.lastScannedAt` / `event.lastScannedAt` in `src/data/` | `update-conferences.ts` / `update-events.ts`, persisted only via a merged data PR |
+| Last human verification           | `edition.lastVerifiedAt` and per-date `verifiedAt`             | A human reviewing a PR. Never automation.                                         |
+
+The homepage's **Last successful scan** tile reads the first of those, via
+`src/lib/automation-status.ts` (public GitHub Actions API, no token needed,
+cached for an hour, `GITHUB_TOKEN` optional and server-only). Using
+`edition.lastScannedAt` for it would be wrong: the weekly workflow opens a PR
+only when conference/event data actually changed, so a run that found nothing
+new — the normal case — never persists a timestamp anywhere in the repository,
+and the tile would silently show the date of the last _data change_ instead of
+the last _scan_. `edition.lastScannedAt` stays as edition-level audit detail
+and as the fallback shown when the GitHub API is unreachable or rate-limited;
+the site renders fine either way, and never calls GitHub from the browser.
+
+For the same reason `check-source-health.ts` runs with `--report-only` in CI:
+its timestamps would either die with the ephemeral runner or ride unreviewed
+into an unrelated data PR. The durable record of a health check is
+`reports/source-health-<date>.md`, uploaded as a workflow artifact. **No
+workflow ever opens a timestamp-only PR or pushes timestamps to `main`.**
 
 The included `jsonLdEventAdapter` looks for schema.org `Event` JSON-LD on
 official pages, and the new `importantDatesTableAdapter` parses a generic

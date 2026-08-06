@@ -68,7 +68,7 @@ export function AccountSettingsDialog({
         setError(
           signedInWithGoogle
             ? "For your security, please confirm with Google again."
-            : "For your security, please re-enter your current password."
+            : "For your security, please re-enter your current password.",
         );
         return;
       }
@@ -171,8 +171,8 @@ export function AccountSettingsDialog({
         <div className="border-border-strong space-y-2 rounded-lg border p-3">
           <p className="font-medium">Your data</p>
           <p className="text-muted-foreground text-xs">
-            Export everything stored for your account (papers, saved plans, favourites,
-            preferences) as a JSON file, or delete it. See{" "}
+            Export everything stored for your account (papers, saved plans, favourites, preferences)
+            as a JSON file, or delete it. See{" "}
             <Link href="/privacy" className="text-accent underline">
               what&apos;s stored and where
             </Link>

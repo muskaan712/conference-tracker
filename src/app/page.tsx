@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
+import { getAutomationStatus, resolveScanStatus } from "@/lib/automation-status";
 import { getTrackerStats, getUpcomingDeadlines } from "@/lib/conferences";
 import { getAllEvents } from "@/lib/events";
 import { getEditionBySlug } from "@/lib/conferences";
@@ -14,7 +15,14 @@ import {
 import { EmptyState } from "@/components/misc";
 import { siteConfig } from "@/lib/site-config";
 
-export const revalidate = 21600;
+/**
+ * One hour, matching AUTOMATION_STATUS_REVALIDATE_SECONDS. The page is still
+ * statically prerendered; it just re-renders hourly, because Next lowers a
+ * route's revalidation window to the shortest of any fetch it makes and the
+ * "Last successful scan" tile fetches GitHub's run metadata hourly. Kept as a
+ * literal because the value must be statically analysable.
+ */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -30,9 +38,12 @@ const QUICK_LINKS = [
   { href: "/planner", label: "Plan a resubmission" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   const now = new Date();
   const stats = getTrackerStats(now);
+  // Never throws: a GitHub outage or rate limit resolves to the edition-level
+  // fallback rather than taking the homepage down with it.
+  const scanStatus = resolveScanStatus(await getAutomationStatus(), stats.lastEditionScan);
   const upcoming = getUpcomingDeadlines(now, 10).map((u) =>
     conferenceTimelineEntry(u.edition, u.date),
   );
@@ -58,7 +69,7 @@ export default function HomePage() {
           </h1>
           <p className="text-muted-foreground mt-3 text-lg">{siteConfig.description}</p>
         </div>
-        <TrackerStatistics stats={stats} />
+        <TrackerStatistics stats={stats} scanStatus={scanStatus} />
         <nav aria-label="Quick links" className="flex flex-wrap gap-2">
           {QUICK_LINKS.map((link) => (
             <Link

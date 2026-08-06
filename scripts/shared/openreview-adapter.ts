@@ -1,5 +1,10 @@
 import type { DiscoverySource } from "../../src/lib/schema";
-import { classifyDeadlineLabel, detectAoE, extractYearFromText, parseDateText } from "./parse-helpers";
+import {
+  classifyDeadlineLabel,
+  detectAoE,
+  extractYearFromText,
+  parseDateText,
+} from "./parse-helpers";
 import {
   confidenceForSource,
   type DiscoveredDateCandidate,
@@ -98,7 +103,8 @@ export const openReviewVenueAdapter: SourceAdapter = {
     const dateValue = group?.content?.date?.value;
     if (typeof dateValue !== "string") return [];
 
-    const fallbackYear = source.editionYear ?? extractYearFromText(dateValue) ?? extractYearFromText(page.body);
+    const fallbackYear =
+      source.editionYear ?? extractYearFromText(dateValue) ?? extractYearFromText(page.body);
     const dates = parseAggregatedDateString(dateValue, fallbackYear, source.url);
     if (dates.length === 0) return [];
 

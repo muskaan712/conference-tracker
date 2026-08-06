@@ -46,8 +46,6 @@ describe("describeAuthError", () => {
 
 describe("friendlyAuthError", () => {
   it("returns just the message string", () => {
-    expect(friendlyAuthError({ code: "auth/wrong-password" })).toBe(
-      "Incorrect email or password.",
-    );
+    expect(friendlyAuthError({ code: "auth/wrong-password" })).toBe("Incorrect email or password.");
   });
 });

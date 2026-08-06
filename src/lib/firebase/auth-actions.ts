@@ -64,7 +64,10 @@ export async function signInWithGoogle(): Promise<GoogleSignInOutcome> {
     return { status: "signed-in", user: credential.user };
   } catch (error) {
     const code = (error as { code?: string })?.code;
-    if (code === "auth/popup-blocked" || code === "auth/operation-not-supported-in-this-environment") {
+    if (
+      code === "auth/popup-blocked" ||
+      code === "auth/operation-not-supported-in-this-environment"
+    ) {
       await signInWithRedirect(auth, googleProvider);
       return { status: "redirecting" };
     }

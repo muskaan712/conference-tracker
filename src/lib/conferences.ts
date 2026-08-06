@@ -79,8 +79,16 @@ export interface TrackerStats {
   conferenceCount: number;
   seriesCount: number;
   upcomingDeadlineCount: number;
+  /** Last *human* verification of tracked data. Never written by automation. */
   lastTrackerUpdate?: string;
-  lastAutomatedScan?: string;
+  /**
+   * Newest `edition.lastScannedAt` — i.e. the last scan that actually changed
+   * conference data, since only a merged data PR persists that field. It is
+   * NOT the last time the scanner ran; that lives in GitHub Actions run
+   * metadata (`src/lib/automation-status.ts`) and this value only serves as
+   * the fallback when GitHub is unreachable.
+   */
+  lastEditionScan?: string;
 }
 
 export function getTrackerStats(now: Date = new Date()): TrackerStats {
@@ -89,7 +97,7 @@ export function getTrackerStats(now: Date = new Date()): TrackerStats {
 
   let upcomingDeadlineCount = 0;
   let lastTrackerUpdate: string | undefined;
-  let lastAutomatedScan: string | undefined;
+  let lastEditionScan: string | undefined;
 
   for (const edition of editions) {
     for (const date of edition.dates) {
@@ -106,11 +114,8 @@ export function getTrackerStats(now: Date = new Date()): TrackerStats {
     ) {
       lastTrackerUpdate = edition.lastVerifiedAt;
     }
-    if (
-      edition.lastScannedAt &&
-      (!lastAutomatedScan || edition.lastScannedAt > lastAutomatedScan)
-    ) {
-      lastAutomatedScan = edition.lastScannedAt;
+    if (edition.lastScannedAt && (!lastEditionScan || edition.lastScannedAt > lastEditionScan)) {
+      lastEditionScan = edition.lastScannedAt;
     }
   }
 
@@ -119,7 +124,7 @@ export function getTrackerStats(now: Date = new Date()): TrackerStats {
     seriesCount: seriesIds.size,
     upcomingDeadlineCount,
     lastTrackerUpdate,
-    lastAutomatedScan,
+    lastEditionScan,
   };
 }
 
@@ -143,8 +148,7 @@ export function getUpcomingDeadlines(
     }
   }
   entries.sort(
-    (a, b) =>
-      resolveDateInstant(a.date).getTime() - resolveDateInstant(b.date).getTime(),
+    (a, b) => resolveDateInstant(a.date).getTime() - resolveDateInstant(b.date).getTime(),
   );
   return limit ? entries.slice(0, limit) : entries;
 }

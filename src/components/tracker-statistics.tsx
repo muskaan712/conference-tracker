@@ -1,4 +1,5 @@
 import { formatInTimeZone } from "date-fns-tz";
+import type { ResolvedScanStatus } from "@/lib/automation-status";
 import type { TrackerStats } from "@/lib/conferences";
 import { DEFAULT_DISPLAY_TIMEZONE } from "@/lib/datetime";
 import { CalendarCheck2, Globe2, HelpCircle, Layers, ScanLine } from "lucide-react";
@@ -10,7 +11,21 @@ function formatDate(iso?: string): string {
   return formatInTimeZone(date, DEFAULT_DISPLAY_TIMEZONE, "d MMMM yyyy");
 }
 
-export function TrackerStatistics({ stats }: { stats: TrackerStats }) {
+/**
+ * Three distinct dates live here and must not be conflated:
+ * `scanStatus` is when the scanner last ran successfully (scheduled or
+ * manual — same scanner either way), `stats.lastTrackerUpdate` is when a
+ * human last verified the data, and `stats.lastEditionScan` is the
+ * edition-level audit value that only backs the first one up when GitHub is
+ * unreachable.
+ */
+export function TrackerStatistics({
+  stats,
+  scanStatus,
+}: {
+  stats: TrackerStats;
+  scanStatus: ResolvedScanStatus;
+}) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -23,14 +38,16 @@ export function TrackerStatistics({ stats }: { stats: TrackerStats }) {
         />
         <StatTile
           icon={ScanLine}
-          label="Last automated scan"
-          value={formatDate(stats.lastAutomatedScan)}
+          label="Last successful scan"
+          value={formatDate(scanStatus.lastSuccessfulScanAt)}
+          detail={scanStatus.triggerLabel}
           small
         />
       </div>
       <p className="text-muted-foreground text-xs">
         Tracker data last verified {formatDate(stats.lastTrackerUpdate)} (
-        {DEFAULT_DISPLAY_TIMEZONE.replace("_", " ")}).
+        {DEFAULT_DISPLAY_TIMEZONE.replace("_", " ")}). This is human review of the data itself, not
+        the automated scan above.
       </p>
       <details className="group border-border bg-surface rounded-lg border px-3 py-2 text-sm">
         <summary className="flex cursor-pointer items-center gap-2 font-medium [&::-webkit-details-marker]:hidden">
@@ -53,11 +70,13 @@ function StatTile({
   icon: Icon,
   label,
   value,
+  detail,
   small,
 }: {
   icon: typeof Layers;
   label: string;
   value: number | string;
+  detail?: string;
   small?: boolean;
 }) {
   return (
@@ -70,7 +89,15 @@ function StatTile({
       >
         {value}
       </p>
-      <p className="text-muted-foreground text-xs">{label}</p>
+      <p className="text-muted-foreground text-xs">
+        {label}
+        {detail ? <span className="sr-only">, {detail} run</span> : null}
+      </p>
+      {detail ? (
+        <p aria-hidden className="text-muted-foreground text-xs opacity-80">
+          {detail}
+        </p>
+      ) : null}
     </div>
   );
 }

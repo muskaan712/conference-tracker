@@ -167,7 +167,10 @@ describe("aiDeadlinesAdapter.run", () => {
   });
 
   it("returns no candidates when the feed is not a YAML list", async () => {
-    const candidates = await aiDeadlinesAdapter.run(discoveryOnlySource, stubClient("title: not-a-list"));
+    const candidates = await aiDeadlinesAdapter.run(
+      discoveryOnlySource,
+      stubClient("title: not-a-list"),
+    );
     expect(candidates).toEqual([]);
   });
 

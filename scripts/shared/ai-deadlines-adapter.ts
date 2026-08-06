@@ -31,7 +31,9 @@ interface AiDeadlinesEntry {
 }
 
 export function isAoeTimezone(timezone: unknown): boolean {
-  return typeof timezone === "string" && /utc\s*-?\s*12|anywhere\s+on\s+earth|\baoe\b/i.test(timezone);
+  return (
+    typeof timezone === "string" && /utc\s*-?\s*12|anywhere\s+on\s+earth|\baoe\b/i.test(timezone)
+  );
 }
 
 /**
@@ -47,7 +49,10 @@ export function parseFeedDateTime(value: unknown): string | undefined {
   return `${match[1]}T${match[2]}:00`;
 }
 
-function buildDateCandidates(entry: AiDeadlinesEntry, sourceUrl: string): DiscoveredDateCandidate[] {
+function buildDateCandidates(
+  entry: AiDeadlinesEntry,
+  sourceUrl: string,
+): DiscoveredDateCandidate[] {
   const isAoE = isAoeTimezone(entry.timezone);
   const timezone = isAoE ? "Etc/GMT+12" : "UTC";
   const dates: DiscoveredDateCandidate[] = [];

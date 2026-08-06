@@ -75,7 +75,10 @@
       "tracks": ["Main Track", "Reproducibility Challenge"],
       "ranking": { "tier": "Unclassified" },
       "verificationStatus": "official",
-      "sourceUrls": ["https://blackboxnlp.github.io/2026/", "https://2026.emnlp.org/calls/workshops/"],
+      "sourceUrls": [
+        "https://blackboxnlp.github.io/2026/",
+        "https://2026.emnlp.org/calls/workshops/"
+      ],
       "lastVerifiedAt": "2026-07-28",
       "lastScannedAt": "2026-07-28",
       "auditTrail": []
@@ -112,7 +115,10 @@
       "tracks": [],
       "ranking": { "tier": "Unclassified" },
       "verificationStatus": "official",
-      "sourceUrls": ["https://sigfintech.github.io/finnlp2026/", "https://2026.emnlp.org/calls/workshops/"],
+      "sourceUrls": [
+        "https://sigfintech.github.io/finnlp2026/",
+        "https://2026.emnlp.org/calls/workshops/"
+      ],
       "lastVerifiedAt": "2026-07-28",
       "lastScannedAt": "2026-07-28",
       "auditTrail": []

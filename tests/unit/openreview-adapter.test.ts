@@ -51,7 +51,10 @@ describe("openReviewVenueAdapter", () => {
   });
 
   it("extracts abstract and full-paper deadlines from the aggregated content.date string", async () => {
-    const candidates = await openReviewVenueAdapter.run(openReviewSource, stubClient(SAMPLE_RESPONSE));
+    const candidates = await openReviewVenueAdapter.run(
+      openReviewSource,
+      stubClient(SAMPLE_RESPONSE),
+    );
     expect(candidates).toHaveLength(1);
     const candidate = candidates[0];
     expect(candidate.seriesId).toBe("iclr");

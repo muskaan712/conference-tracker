@@ -198,7 +198,9 @@ export function parseDateText(text: string, fallbackYear?: number): string | und
     return isoDate(year, month, day);
   }
 
-  const monthDayNoYear = cleaned.match(new RegExp(`\\b${MONTH_NAME_PATTERN}\\s+(\\d{1,2})\\b`, "i"));
+  const monthDayNoYear = cleaned.match(
+    new RegExp(`\\b${MONTH_NAME_PATTERN}\\s+(\\d{1,2})\\b`, "i"),
+  );
   if (monthDayNoYear && fallbackYear) {
     const month = monthIndexFromName(monthDayNoYear[1]);
     const day = Number(monthDayNoYear[2]);

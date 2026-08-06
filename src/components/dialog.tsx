@@ -99,10 +99,7 @@ export function Dialog({
   if (!mounted || typeof document === "undefined" || !document.body) return null;
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/40"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40" onClick={onClose}>
       <div className="flex min-h-full items-start justify-center p-4 sm:items-center">
         <div
           ref={panelRef}

@@ -106,6 +106,14 @@ export default function MethodologyPage() {
             <code>/updates</code> audit trail.
           </li>
         </ol>
+        <p className="text-muted-foreground text-sm">
+          <strong>Last successful scan</strong> on the homepage is the start time of the most recent
+          successful run of that workflow, whether it was the weekly schedule or a manual run — both
+          run the identical scanner. Most runs find nothing new and correctly change no data, so
+          that date moves even when the tracker does not. It is a different thing from{" "}
+          <strong>Tracker data last verified</strong>, which is when a human last confirmed the data
+          itself and is never updated by automation.
+        </p>
       </section>
     </div>
   );

@@ -55,7 +55,10 @@ test.describe("mobile navigation", () => {
   test("closes the menu after navigating to a route", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Open menu" }).click();
-    await page.getByRole("navigation", { name: "Mobile" }).locator('a[href="/conferences"]').click();
+    await page
+      .getByRole("navigation", { name: "Mobile" })
+      .locator('a[href="/conferences"]')
+      .click();
     await expect(page).toHaveURL(/\/conferences$/);
     await expect(page.getByRole("navigation", { name: "Mobile" })).toBeHidden();
     await expect(page.getByRole("button", { name: "Open menu" })).toHaveAttribute(
@@ -84,7 +87,9 @@ test.describe("mobile navigation", () => {
   test("marks the current route as active in the mobile menu", async ({ page }) => {
     await page.goto("/conferences");
     await page.getByRole("button", { name: "Open menu" }).click();
-    const activeLink = page.getByRole("navigation", { name: "Mobile" }).locator('a[aria-current="page"]');
+    const activeLink = page
+      .getByRole("navigation", { name: "Mobile" })
+      .locator('a[aria-current="page"]');
     await expect(activeLink).toHaveAttribute("href", "/conferences");
   });
 });

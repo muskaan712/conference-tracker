@@ -129,6 +129,19 @@ request — the workflow logs "No candidate changes discovered this run;
 skipping PR." and exits successfully. Treat that as the expected, healthy
 outcome most weeks, not a failure.
 
+The homepage's **Last successful scan** tile still moves on such a run,
+because it reads the workflow's own run metadata from the public GitHub
+Actions API rather than anything committed to the repo — see [Which timestamp
+means what](../README.md#which-timestamp-means-what). Nothing is written to
+`main` and no timestamp-only PR is ever opened. Detailed source-health results
+for the run live in the uploaded `conference-update-reports-<run-id>` artifact
+as `source-health-<date>.md`.
+
+Optionally set a server-only `GITHUB_TOKEN` in Vercel's environment variables
+to raise the API rate limit for that tile. It is not required, must not be
+exposed as a `NEXT_PUBLIC_*` variable, and the tile degrades to the newest
+edition scan timestamp without it.
+
 ## Troubleshooting
 
 | Symptom                                                                        | Likely cause / fix                                                                                                                                                                                                                             |
@@ -141,6 +154,8 @@ outcome most weeks, not a failure.
 | No PR appears after a manual run                                               | Check the run logs for "No candidate changes discovered" — this is success, not an error. See [No-change behaviour](#no-change-behaviour).                                                                                                     |
 | `validate-data` fails in CI or the weekly workflow                             | A conference JSON file or `discovery-sources.json` doesn't match its Zod schema — the log names the exact file and field; fix the data, don't bypass validation.                                                                               |
 | A source's health check shows unreachable, or discovery logs a robots.txt skip | Expected, honest behaviour, not a bug — see the fetch client's ethical-scraping rules in the root README. Re-run `npm run check-sources` locally later, or disable that source in `discovery-sources.json` if it's permanently gone.           |
+| "Last successful scan" shows an older date than the last green workflow run    | The GitHub API call was unavailable or rate-limited at render time, so the tile fell back to the newest `edition.lastScannedAt`. The page is cached for an hour; set a server-only `GITHUB_TOKEN` if it recurs on every build.                 |
+| `discovery-sources.json` health timestamps never change on GitHub              | Intended: the weekly workflow runs the health check with `--report-only`. Read the run's `source-health-<date>.md` artifact, or run `npm run check-sources` locally and commit the result deliberately.                                        |
 | A source request times out                                                     | The fetch client retries transient failures automatically; a persistent timeout usually means the source is slow or blocking automated traffic — check it manually before assuming it's broken.                                                |
 | No Vercel preview appears on a PR                                              | Confirm the Vercel GitHub integration is connected to this repo (Vercel → Project → Settings → Git) — it should attach automatically once the project is imported.                                                                             |
 | Production doesn't redeploy after merging a PR                                 | Confirm the PR was merged into `main` specifically (Vercel's Production environment tracks `main` by default) and that the Vercel Git integration is still connected.                                                                          |

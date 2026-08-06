@@ -118,7 +118,6 @@ export const manualReviewFallbackAdapter: SourceAdapter = {
   },
 };
 
-
 /**
  * Generic "important dates" page adapter: works on any page exposing an
  * HTML `<table>`, `<dl>`, or a plain "label: date" bulleted `<ul>`/`<ol>` of

@@ -33,8 +33,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check discovery source health
-        run: npm run check-sources
+      - name: Check discovery source health (report-only)
+        # --report-only: results go to reports/source-health-<date>.md, which
+        # is uploaded as an artifact below, and discovery-sources.json is left
+        # untouched. Writing health timestamps here would either be discarded
+        # with the runner (no data change → no PR) or ride along unreviewed
+        # inside an unrelated data PR via `git add src/data`. The homepage's
+        # "Last successful scan" tile reads this workflow's own run metadata
+        # from the GitHub Actions API instead — see src/lib/automation-status.ts.
+        run: npm run check-sources -- --report-only
         continue-on-error: true
 
       - name: Discover + merge candidate conference updates
@@ -56,10 +63,12 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          # Only conference/event data changes warrant a PR; source-health
-          # bookkeeping (last-checked timestamps) alone is not worth a review
-          # cycle. A single combined PR covers both, per Part 3's "one
-          # combined PR" requirement — never two competing workflows.
+          # Only conference/event data changes warrant a PR. Source-health
+          # bookkeeping cannot show up here at all any more — the health check
+          # runs with --report-only and writes solely to reports/ — so this
+          # diff sees real data changes and nothing else. A single combined PR
+          # covers both, per Part 3's "one combined PR" requirement — never
+          # two competing workflows.
           if git diff --quiet -- src/data/conferences src/data/events; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else

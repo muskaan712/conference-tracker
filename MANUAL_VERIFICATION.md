@@ -31,20 +31,20 @@ rationale (what's confirmed, what's flagged, and why) is in the commit
 message for "Add 12 conference series to close the gap against the target
 coverage list" — summary:
 
-| Series           | Status                                                                                                                                         |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| DSAA 2026        | Fully verified (submission deadline via the conference's own OpenReview venue group metadata, conference dates via its official site)             |
-| IEEE BigData 2026 | Dates official; exact submission time/timezone not stated on the official page (flagged in a `notes` field, not guessed as AoE)                  |
-| ICAIF 2026       | Dates official; notification/camera-ready not yet published as of this scan                                                                       |
-| ICDM 2026        | Dates official; exact submission time/timezone not stated on the official page                                                                    |
-| SDM 2026         | **No dates recorded.** Aggregators disagreed with each other and the official siam.org page returned HTTP 403 during this session — see below.   |
-| IJCNN 2026       | Fully verified including explicit AoE deadline, via the shared WCCI 2026 site                                                                     |
-| ESANN 2026       | Fully verified; this edition (April 2026) has already begun/concluded by the time you read this — no 2027 edition was announced as of this scan   |
-| WMT 2026         | Fully verified including explicit AoE deadline pipeline, co-located with EMNLP 2026                                                                |
-| DocEng 2026      | Fully verified including explicit AoE deadline pipeline                                                                                            |
-| WACV 2027        | Two-round submission process; only the Round 2 deadline and camera-ready were confirmed (Round 1's own deadline wasn't visible during this scan)  |
-| MIDL 2027        | Dates/venue confirmed; no CFP published yet                                                                                                        |
-| ECIR 2026        | Conference dates marked `"verified"` (not `"official"`) — the confirming page failed TLS verification during this session; submission deadlines omitted entirely for the same reason. A human should retry `https://ecir2026.eu/calls/call-for-full-papers` directly. |
+| Series            | Status                                                                                                                                                                                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DSAA 2026         | Fully verified (submission deadline via the conference's own OpenReview venue group metadata, conference dates via its official site)                                                                                                                                 |
+| IEEE BigData 2026 | Dates official; exact submission time/timezone not stated on the official page (flagged in a `notes` field, not guessed as AoE)                                                                                                                                       |
+| ICAIF 2026        | Dates official; notification/camera-ready not yet published as of this scan                                                                                                                                                                                           |
+| ICDM 2026         | Dates official; exact submission time/timezone not stated on the official page                                                                                                                                                                                        |
+| SDM 2026          | **No dates recorded.** Aggregators disagreed with each other and the official siam.org page returned HTTP 403 during this session — see below.                                                                                                                        |
+| IJCNN 2026        | Fully verified including explicit AoE deadline, via the shared WCCI 2026 site                                                                                                                                                                                         |
+| ESANN 2026        | Fully verified; this edition (April 2026) has already begun/concluded by the time you read this — no 2027 edition was announced as of this scan                                                                                                                       |
+| WMT 2026          | Fully verified including explicit AoE deadline pipeline, co-located with EMNLP 2026                                                                                                                                                                                   |
+| DocEng 2026       | Fully verified including explicit AoE deadline pipeline                                                                                                                                                                                                               |
+| WACV 2027         | Two-round submission process; only the Round 2 deadline and camera-ready were confirmed (Round 1's own deadline wasn't visible during this scan)                                                                                                                      |
+| MIDL 2027         | Dates/venue confirmed; no CFP published yet                                                                                                                                                                                                                           |
+| ECIR 2026         | Conference dates marked `"verified"` (not `"official"`) — the confirming page failed TLS verification during this session; submission deadlines omitted entirely for the same reason. A human should retry `https://ecir2026.eu/calls/call-for-full-papers` directly. |
 
 None of these 12 have a CORE tier assigned (`Unclassified`) — no CORE
 lookup was performed for them this session, matching the same honest
@@ -170,15 +170,15 @@ integration, discovery pipeline) is fully built — see
 parent editions** are seeded (`src/data/events/aaai-2027.json`,
 `emnlp-2026.json`, `eacl-2027.json`), each verified this session:
 
-| Event                              | Parent      | Type                | Verification                                                                                    |
-| ----------------------------------- | ----------- | ------------------- | ------------------------------------------------------------------------------------------------ |
-| EAAI-27                             | AAAI 2027   | symposium           | Official, full AoE deadline pipeline, own AAAI CFP page                                          |
-| AAAI/SIGAI Doctoral Consortium      | AAAI 2027   | doctoral-consortium | Official, full AoE deadline pipeline, own AAAI CFP page                                          |
-| Student Abstract & Poster Program   | AAAI 2027   | special-session     | Official, own AAAI CFP page (no time/timezone stated)                                            |
-| BlackboxNLP 2026                    | EMNLP 2026  | workshop            | Official, full AoE deadline pipeline, own workshop site (blackboxnlp.github.io/2026)             |
-| FinNLP 2026                         | EMNLP 2026  | workshop            | Official submission deadline (AoE) via own workshop site (sigfintech.github.io/finnlp2026)       |
-| ClimateNLP, MathNLP, NLLP           | EMNLP 2026  | workshop            | `verified` (not `official`) — confirmed accepted only via the official EMNLP 2026 workshops list, not each workshop's own page; dates left empty |
-| EACL 2027 Industry Track            | EACL 2027   | industry-track      | Official, full AoE deadline pipeline, own EACL CFP page                                          |
+| Event                             | Parent     | Type                | Verification                                                                                                                                     |
+| --------------------------------- | ---------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| EAAI-27                           | AAAI 2027  | symposium           | Official, full AoE deadline pipeline, own AAAI CFP page                                                                                          |
+| AAAI/SIGAI Doctoral Consortium    | AAAI 2027  | doctoral-consortium | Official, full AoE deadline pipeline, own AAAI CFP page                                                                                          |
+| Student Abstract & Poster Program | AAAI 2027  | special-session     | Official, own AAAI CFP page (no time/timezone stated)                                                                                            |
+| BlackboxNLP 2026                  | EMNLP 2026 | workshop            | Official, full AoE deadline pipeline, own workshop site (blackboxnlp.github.io/2026)                                                             |
+| FinNLP 2026                       | EMNLP 2026 | workshop            | Official submission deadline (AoE) via own workshop site (sigfintech.github.io/finnlp2026)                                                       |
+| ClimateNLP, MathNLP, NLLP         | EMNLP 2026 | workshop            | `verified` (not `official`) — confirmed accepted only via the official EMNLP 2026 workshops list, not each workshop's own page; dates left empty |
+| EACL 2027 Industry Track          | EACL 2027  | industry-track      | Official, full AoE deadline pipeline, own EACL CFP page                                                                                          |
 
 Every event keeps its own independent `ranking: { tier: "Unclassified" }`,
 never inherited from its parent conference — see docs/EVENTS.md.
@@ -223,7 +223,7 @@ only the time-of-day changed, never the calendar date):
 
 **Deliberately left unchanged** (do not blindly "fix" these — see below):
 
-- `emnlp-2026-author-response-start` — this is the *start* of a window
+- `emnlp-2026-author-response-start` — this is the _start_ of a window
   (`endsAt` already correctly reads `23:59:00`); a window opening at
   midnight AoE is correct, not a bug.
 - `emnlp-2026-notification`, `emnlp-2026-camera-ready`,
@@ -240,7 +240,7 @@ only the time-of-day changed, never the calendar date):
 A display bug was also found and fixed while verifying this: `formatOriginal`
 and `accessibleDeadlinePhrase` in `src/lib/datetime.ts` used to reproject an
 AoE deadline's resolved UTC instant back into a calendar date, which silently
-shifted the *displayed* date forward by one day for any AoE time past 12:00
+shifted the _displayed_ date forward by one day for any AoE time past 12:00
 (exactly the common 23:59 AoE case) — e.g. "28 July 2026, 23:59 AoE" was
 rendering as "29 July 2026." Fixed to read the authored wall-clock
 date/time directly instead. See `tests/unit/datetime.test.ts` for the
@@ -257,4 +257,8 @@ regression tests.
   or the label-attach step in the weekly workflow will no-op silently.
 - `check-source-health.ts` was run once during development against the real
   internet; all 11 sources responded successfully as of 2026-07-27. Re-run
-  it periodically — it does not run automatically outside the weekly workflow.
+  it periodically — it does not run automatically outside the weekly workflow,
+  and the weekly workflow runs it with `--report-only`, so the health
+  timestamps in `discovery-sources.json` only ever change when a human runs
+  it locally and commits the result. The CI record of a health check is the
+  `source-health-<date>.md` file in the run's uploaded artifact.

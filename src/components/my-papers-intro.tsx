@@ -22,8 +22,8 @@ export function MyPapersIntro() {
       {signedIn ? (
         <>
           A planning board for your own papers. Signed in, everything here is synced through
-          Firebase Cloud Firestore to your account — readable only by you, on any device you sign
-          in on.
+          Firebase Cloud Firestore to your account — readable only by you, on any device you sign in
+          on.
         </>
       ) : (
         <>

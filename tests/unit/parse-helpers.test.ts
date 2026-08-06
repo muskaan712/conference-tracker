@@ -154,7 +154,9 @@ describe("parseStructuredLists", () => {
 
   it("works with <ol> as well as <ul>", () => {
     const html = "<ol><li>Camera ready: 1 May 2027</li></ol>";
-    expect(parseStructuredLists(html)).toEqual([{ term: "Camera ready", definition: "1 May 2027" }]);
+    expect(parseStructuredLists(html)).toEqual([
+      { term: "Camera ready", definition: "1 May 2027" },
+    ]);
   });
 
   it("ignores list items without a colon separator (ordinary prose bullets)", () => {
